@@ -61,8 +61,10 @@
 		<property name="url" value="jdbc:mysql://localhost:3306/theiyers_whatsThePlan" />
 		<!-- <property name="username" value="theiyers_admin" />
 		<property name="password" value="PraxIyer05" /> -->
+		<!-- <property name="username" value="root" />
+		<property name="password" value="password" /> -->
 		<property name="username" value="root" />
-		<property name="password" value="password" />
+		<property name="password" value="PraxIyer" />
 	</bean>
 
 	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
@@ -71,11 +73,13 @@
 		</property>
 	</bean>
 
+    <bean id="expenseService" class="com.justmeet.service.ExpenseService" />
     <bean id="gcmService" class="com.justmeet.service.GcmService" />
     <bean id="userService" class="com.justmeet.service.UserService" />
     <bean id="groupService" class="com.justmeet.service.GroupService" />
     <bean id="planService" class="com.justmeet.service.PlanService" />
     
+    <bean id="expenseDao" class="com.justmeet.dao.ExpenseDAO" />
     <bean id="gcmDao" class="com.justmeet.dao.GcmDAO" />
 	<bean id="userDao" class="com.justmeet.dao.UserDAO" />
 	<bean id="groupDao" class="com.justmeet.dao.GroupDAO" />

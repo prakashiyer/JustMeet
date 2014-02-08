@@ -1,9 +1,14 @@
 package com.justmeet.dao;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
 public class GcmDAO {
 
@@ -21,6 +26,38 @@ public class GcmDAO {
 		} catch (Exception e) {
 			log.warn(e.getMessage());
 			return false;
+		}
+	}
+	
+	public List<String> fetchRegIds(List<String> phoneList) {
+		StringBuffer findQuery = new StringBuffer();
+		findQuery.append("SELECT * FROM theiyers_whatsThePlan.gcm_details where phone in (");
+		int size = phoneList.size();
+		for(int i=0; i<size; i++){
+			findQuery.append(phoneList.get(i));
+			if(i<size-1){
+				findQuery.append(",");
+			}
+		}
+		findQuery.append(")");
+		
+		try {
+			return jdbcTemplate.query(findQuery.toString(),
+					new ParameterizedRowMapper<String>() {
+				        
+						public String mapRow(ResultSet rs, int rowNum)
+								throws SQLException {
+							
+							if (rs != null) {
+								return rs.getString(1);
+							}
+							return null;
+						}
+					});
+
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return null;
 		}
 	}
 }

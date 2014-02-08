@@ -11,8 +11,8 @@ public class Expense {
 	
 	@XmlElement(name="id")
 	private int id;
-	@XmlElement(name="emailId")
-	private String emailId;
+	@XmlElement(name="phone")
+	private String phone;
 	@XmlElement(name="plan")
 	private String plan;
 	@XmlElement(name="group")
@@ -37,12 +37,12 @@ public class Expense {
 	}
 
 
-	public String getEmailId() {
-		return emailId;
+	public String getPhone() {
+		return phone;
 	}
 
-	public void setEmailId(String emailId) {
-		this.emailId = emailId;
+	public void setPhone(String phone) {
+		this.phone = phone;
 	}
 
 	public String getPlan() {

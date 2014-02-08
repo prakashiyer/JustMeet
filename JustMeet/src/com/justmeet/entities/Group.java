@@ -15,8 +15,8 @@ public class Group
     private int id;
     @XmlElement(name="name")
     private String name;
-    @XmlElement(name="memberEmailIds")
-    private List<String> memberEmailIds;
+    @XmlElement(name="members")
+    private List<String> members;
     @XmlElement(name="planNames")
     private List<String>  planNames;
     @XmlElement(name="pendingMembers")
@@ -48,14 +48,14 @@ public class Group
         this.name = name;
     }
 
-    public List<String> getMemberEmailIds()
+    public List<String> getMembers()
     {
-        return memberEmailIds;
+        return members;
     }
 
-    public void setMemberEmailIds(List<String> memberEmailIds)
+    public void setMembers(List<String> members)
     {
-        this.memberEmailIds = memberEmailIds;
+        this.members = members;
     }
 
     public List<String> getPlanNames()

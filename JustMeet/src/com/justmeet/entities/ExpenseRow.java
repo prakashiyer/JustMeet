@@ -13,8 +13,8 @@ public class ExpenseRow {
 	private byte[] userImage;
 	@XmlElement(name="name")
 	private String name;
-	@XmlElement(name="emailId")
-	private String emailId;
+	@XmlElement(name="phone")
+	private String phone;
 	@XmlElement(name="value")
 	private int value;
 	
@@ -38,12 +38,12 @@ public class ExpenseRow {
 		this.name = name;
 	}
 
-	public String getEmailId() {
-		return emailId;
+	public String getPhone() {
+		return phone;
 	}
 
-	public void setEmailId(String emailId) {
-		this.emailId = emailId;
+	public void setPhone(String phone) {
+		this.phone = phone;
 	}
 
 	public int getValue() {
