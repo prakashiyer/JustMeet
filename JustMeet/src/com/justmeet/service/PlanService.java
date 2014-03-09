@@ -98,7 +98,7 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 				boolean success = planDao.updatePlanWithMember(
 						planName, members);
 
-				if (success && rsvp.equals("yes")) {
+				if (success) {
 					plan = planDao.fetchPlanInformation(planName);
 					
 					

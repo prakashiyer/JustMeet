@@ -49,7 +49,7 @@ public class GcmDAO {
 								throws SQLException {
 							
 							if (rs != null) {
-								return rs.getString(1);
+								return rs.getString(2);
 							}
 							return null;
 						}
