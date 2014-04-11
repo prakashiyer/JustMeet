@@ -75,6 +75,7 @@ public class PlanDAO {
 								plan.setGroupName(rs.getString(3));
 								plan.setStartTime(rs.getTimestamp(4).toString());
 								plan.setLocation(rs.getString(5));
+								plan.setEndTime(rs.getString(8));
 								// Create Members xml
 								XStream membersXs = new XStream();
 								membersXs.alias("Members", List.class);
@@ -97,8 +98,8 @@ public class PlanDAO {
 	}
 
 	public boolean addPlan(String name, String groupName, String startTime,
-			String location, List<String> members, String creator) {
-		String insertQuery = "INSERT INTO theiyers_whatsThePlan.plans (name, group_name, start_time, location, member_names, creator) VALUES (?, ?, ?, ?, ?, ?)";
+			String location, List<String> members, String creator, String endTime) {
+		String insertQuery = "INSERT INTO theiyers_whatsThePlan.plans (name, group_name, start_time, location, member_names, creator, end_time) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		// Create members xml
 		XStream membersXs = new XStream();
 		membersXs.alias("Members", List.class);
@@ -106,7 +107,7 @@ public class PlanDAO {
 		String membersXml = membersXs.toXML(members);
 		try {
 			jdbcTemplate.update(insertQuery, name, groupName, startTime,
-					location, membersXml, creator);
+					location, membersXml, creator, endTime);
 			return true;
 		} catch (Exception e) {
 			log.warn(e.getMessage());
@@ -131,6 +132,7 @@ public class PlanDAO {
 								plan.setGroupName(rs.getString(3));
 								plan.setStartTime(rs.getTimestamp(4).toString());
 								plan.setLocation(rs.getString(5));
+								plan.setEndTime(rs.getString(8));
 								// Create members xml
 								XStream membersXs = new XStream();
 								membersXs.alias("Members", List.class);
@@ -255,6 +257,7 @@ public class PlanDAO {
 								plan.setGroupName(rs.getString(3));
 								plan.setStartTime(rs.getTimestamp(4).toString());
 								plan.setLocation(rs.getString(5));
+								plan.setEndTime(rs.getString(8));
 								// Create members xml
 								XStream membersXs = new XStream();
 								membersXs.alias("Members", List.class);
@@ -276,12 +279,12 @@ public class PlanDAO {
 	}
 	
 	public boolean editPlan(String oldName, String newName, String startTime,
-			String location) {
-		String updateQuery = "UPDATE theiyers_whatsThePlan.plans SET name=?, start_time=?, location=? WHERE name=?";
+			String location, String endTime) {
+		String updateQuery = "UPDATE theiyers_whatsThePlan.plans SET name=?, start_time=?, location=?, end_time=? WHERE name=?";
 		
 		try {
 			jdbcTemplate.update(updateQuery, newName, startTime,
-					location, oldName);
+					location, endTime, oldName);
 			return true;
 		} catch (Exception e) {
 			log.warn(e.getMessage());

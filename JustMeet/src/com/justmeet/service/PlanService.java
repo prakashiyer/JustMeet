@@ -128,12 +128,12 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 
 	public Plan addPlan(String planName, String phone, String planDate,
 			String planTime, String planLocation, String groupName,
-			String creator) {
+			String creator, String endDate, String endTime) {
 		List<String> members = new ArrayList<String>();
 		members.add(phone);
 
 		boolean success = planDao.addPlan(planName, groupName, planDate
-				+ " " + planTime, planLocation, members, creator);
+				+ " " + planTime, planLocation, members, creator, endDate + " " + endTime);
 		if (success) {
 			Group group = groupDao.fetchGroupInformation(groupName);
 			List<String> plans = group.getPlanNames();
@@ -162,9 +162,9 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 
 	public Plan editPlan(String newPlanName, String oldPlanName,
 			String planDate, String planTime, String planLocation,
-			String groupName) {
+			String groupName, String planEndDate, String planEndTime) {
 		boolean success = planDao.editPlan(oldPlanName, newPlanName,
-				planDate + " " + planTime, planLocation);
+				planDate + " " + planTime, planLocation, planEndDate + " " + planEndTime);
 		if (success) {
 			Group group = groupDao.fetchGroupInformation(groupName);
 			List<String> plans = group.getPlanNames();

@@ -19,6 +19,8 @@ public class Plan {
 	private String groupName;
 	@XmlElement(name = "startTime")
 	private String startTime;
+	@XmlElement(name = "endTime")
+	private String endTime;
 	@XmlElement(name = "location")
 	private String location;
 	@XmlElement(name = "memberNames")
@@ -59,6 +61,14 @@ public class Plan {
 
 	public void setStartTime(String startTime) {
 		this.startTime = startTime;
+	}
+	
+	public String getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
 	}
 
 	public String getLocation() {
