@@ -1,5 +1,6 @@
 package com.justmeet.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -50,7 +51,7 @@ public class JustMeetController {
 	void addRegId(@RequestParam(value = "regId") String regId,
 			@RequestParam(value = "phone") String phone) {
 		logger.info("Reg Id storage.");
-		gcmService.addRegId(regId, phone);
+		this.gcmService.addRegId(regId, phone);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/addUser")
@@ -59,14 +60,14 @@ public class JustMeetController {
 			@RequestParam(value = "phone") String phone) {
 		System.out.println("New User addition: " + phone + "/" + name);
 		logger.info("New User addition: " + phone + "/" + name);
-		return userService.addUser(name, phone);
+		return this.userService.addUser(name, phone);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchUser")
 	public @ResponseBody
 	User fetchUser(@RequestParam(value = "phone") String phone) {
 		logger.info("Fetch User: " + phone);
-		return userService.fetchUser(phone);
+		return this.userService.fetchUser(phone);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/addGroup")
@@ -74,7 +75,7 @@ public class JustMeetController {
 	Group addGroup(@RequestParam(value = "groupName") String groupName,
 			@RequestParam(value = "phone") String phone) {
 		logger.info("Add Group: " + phone + "/" + groupName);
-		return groupService.addGroup(groupName, phone);
+		return this.groupService.addGroup(groupName, phone);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchUpcomingPlans")
@@ -136,16 +137,18 @@ public class JustMeetController {
 			@RequestParam(value = "phone") String phone,
 			@RequestParam(value = "date") String planDate,
 			@RequestParam(value = "time") String planTime,
+			@RequestParam(value = "endDate") String endDate,
+			@RequestParam(value = "endTime") String endTime,
 			@RequestParam(value = "location") String planLocation,
 			@RequestParam(value = "groupName") String groupName,
 			@RequestParam(value = "creator") String creator) {
 		logger.info("Plan addition for " +groupName);
 		Plan plan = planService.addPlan(planName, phone, planDate, planTime,
-				planLocation, groupName, creator);
+				planLocation, groupName, creator, endDate, endTime);
 		if(plan != null){
-			Group group = groupService.searchGroup(groupName);
+			Group group = this.groupService.searchGroup(groupName);
 			List<String> phoneList = group.getMembers();
-			gcmService.broadcast("New Plan Created", "A new plan has been added.", phoneList);
+			this.gcmService.broadcast("Just Meet", "A new plan has been added '"+ planName+"' to '"+groupName+"'", phoneList);
 			logger.info("Plan created : "+ planName);
 			return plan;
 		}
@@ -160,11 +163,26 @@ public class JustMeetController {
 		return planService.fetchPlan(planName);
 	}
 
+	@SuppressWarnings("null")
 	@RequestMapping(method = RequestMethod.GET, value = "/rsvpPlan")
 	public @ResponseBody
 	Plan rsvpPlan(@RequestParam(value = "phone") String phone,
 			@RequestParam(value = "planName") String planName,
 			@RequestParam(value = "rsvp") String rsvp) {
+		Plan plan = planService.fetchPlan(planName);
+		String phoneName = null;
+		User user = new User();
+		user = this.userService.fetchUser(phone);
+		phoneName = user.getName();
+		logger.info("phoneName : " +phoneName);
+		if (rsvp.equals("yes")) {
+		gcmService.broadcast("Just Meet", phoneName+ " is attending '" +planName+"'", plan.getMemberNames());
+		} else if (rsvp.equals("no") && plan.getMemberNames().size() == 1) {
+			logger.info("only one member in plan.. deleting...");
+			gcmService.broadcast("Just Meet", phoneName+ " is not attending '" +planName+"'" +"and the plan is deleted", plan.getMemberNames());
+		} else if (rsvp.equals("no")) {
+			gcmService.broadcast("Just Meet", phoneName+ " is not attending '" +planName+"'", plan.getMemberNames());
+		}
 		logger.info("Plan RSVP for  : "+ planName+"/"+phone);
 		return planService.rsvpPlan(phone, planName, rsvp);
 	}
@@ -174,7 +192,7 @@ public class JustMeetController {
 	Plan deletePlan(@RequestParam(value = "planName") String planName,
 			@RequestParam(value = "groupName") String groupName) {
 		Group group = groupService.searchGroup(groupName);
-		gcmService.broadcast("Plan deleted", " Plan "+planName+" has been added.", group.getMembers());
+		gcmService.broadcast("Just Meet", " Plan '"+planName+"' has been deleted from '"+groupName+"'", group.getMembers());
 		logger.info("Plan deleted: "+planName);
 		return planService.deletePlan(planName, groupName);
 	}
@@ -215,6 +233,8 @@ public class JustMeetController {
 	public @ResponseBody
 	Group leaveGroup(@RequestParam(value = "phone") String phone,
 			@RequestParam(value = "groupName") String groupName) {
+		Group group = groupService.searchGroup(groupName);
+		gcmService.broadcast("Just Meet", phone+" has left the group '"+groupName+"'", group.getMembers());
 		return groupService.leaveGroup(phone, groupName);
 	}
 
@@ -224,10 +244,14 @@ public class JustMeetController {
 			@RequestParam(value = "oldName") String oldPlanName,
 			@RequestParam(value = "date") String planDate,
 			@RequestParam(value = "time") String planTime,
+			@RequestParam(value = "endDate") String endDate,
+			@RequestParam(value = "endTime") String endTime,
 			@RequestParam(value = "location") String planLocation,
 			@RequestParam(value = "groupName") String groupName) {
+		Plan plan = planService.fetchPlan(oldPlanName);
+		gcmService.broadcast("Just Meet", "Plan "+oldPlanName+" has been edited to '"+newPlanName+"'", plan.getMemberNames());
 		return planService.editPlan(newPlanName, oldPlanName, planDate,
-				planTime, planLocation, groupName);
+				planTime, planLocation, groupName, endDate, endTime);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/deleteAccount")
@@ -245,7 +269,12 @@ public class JustMeetController {
 			@RequestParam(value = "value") String value) {
 		expenseService.add(phone, planName, groupName, title, value);
 		Plan plan = planService.fetchPlan(planName);
-		gcmService.broadcast("New Expense", "A new expense has been added.", plan.getMemberNames());
+		logger.info("member names : " + plan.getMemberNames());
+		String phoneName = null;
+		User user = new User();
+		user = this.userService.fetchUser(phone);
+		phoneName = user.getName();
+		gcmService.broadcast("Just Meet", phoneName+ " added a new expense of Rs."+value +" to plan - '" +planName+"' in '"+groupName+"'",plan.getMemberNames());
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/updateExpense")
@@ -255,6 +284,12 @@ public class JustMeetController {
 			@RequestParam(value = "groupName") String groupName,
 			@RequestParam(value = "title") String title,
 			@RequestParam(value = "value") String value) {
+		String phoneName = null;
+		User user = new User();
+		user = this.userService.fetchUser(phone);
+		phoneName = user.getName();
+		Plan plan = planService.fetchPlan(planName);
+		gcmService.broadcast("Just Meet", phoneName+ " updated expense of Rs."+value +" to plan - '" +planName+"' in '"+groupName+"'",plan.getMemberNames());
 		expenseService.update(phone, planName, groupName, title, value);
 	}
 
@@ -264,7 +299,13 @@ public class JustMeetController {
 			@RequestParam(value = "planName") String planName,
 			@RequestParam(value = "groupName") String groupName,
 			@RequestParam(value = "title") String title) {
+		Plan plan = planService.fetchPlan(planName);
 		expenseService.delete(phone, planName, groupName, title);
+		String phoneName = null;
+		User user = new User();
+		user = this.userService.fetchUser(phone);
+		phoneName = user.getName();
+		gcmService.broadcast("Just Meet", phoneName+ " deleted an expense from plan - '" +planName+"' in '"+groupName+"'",plan.getMemberNames());
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchExpense")
