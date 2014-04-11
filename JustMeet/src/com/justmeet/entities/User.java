@@ -21,7 +21,9 @@ public class User {
 	private List<String> groupNames;
 	@XmlElement(name="pendingGroupNames")
 	private List<String> pendingGroupNames;
-	
+	@XmlElement(name="image")
+	private byte[] image;
+
 	public User(){
 		
 	}
@@ -66,6 +68,12 @@ public class User {
 		this.pendingGroupNames = pendingGroupNames;
 	}
 	
-	
+	public byte[] getImage() {
+		return image;
+	}
+
+	public void setImage(byte[] image) {
+		this.image = image;
+	}
 
 }

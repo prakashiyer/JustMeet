@@ -16,6 +16,7 @@ import com.justmeet.dao.UserDAO;
 import com.justmeet.entities.Group;
 import com.justmeet.entities.Plan;
 import com.justmeet.entities.User;
+import com.justmeet.entities.UserList;
 
 public class UserService {
 
@@ -142,5 +143,19 @@ public class UserService {
 			
 		}
 	}
+	
 
+	public UserList fetchUserList(String phoneList) {
+		List<User> users = userDao.fetchUserList(phoneList);
+		if (users != null) {
+			log.info("User List fetched successfully, Size is: " + users.size());
+			UserList userList = new UserList();
+			userList.setUsers(users);
+			return userList;
+		} else {
+			log.error("User List fetch failed ");
+			return new UserList();
+		}
+	}
+	
 }

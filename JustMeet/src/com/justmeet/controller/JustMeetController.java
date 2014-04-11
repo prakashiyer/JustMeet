@@ -19,6 +19,7 @@ import com.justmeet.entities.Group;
 import com.justmeet.entities.Plan;
 import com.justmeet.entities.PlanList;
 import com.justmeet.entities.User;
+import com.justmeet.entities.UserList;
 import com.justmeet.service.ExpenseService;
 import com.justmeet.service.GcmService;
 import com.justmeet.service.GroupService;
@@ -322,5 +323,14 @@ public class JustMeetController {
 			@RequestParam(value = "planName") String planName) {
 		return expenseService.generateReport(planName);
 	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchExistingUsers")
+	public @ResponseBody
+	UserList fetchExistingUsers(@RequestParam(value = "phoneList") String phoneList) {
+		
+		return userService.fetchUserList(phoneList);
+	}
+	
+	
 
 }

@@ -176,4 +176,58 @@ public class UserDAO {
 			return false;
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<User> fetchUserList(String phoneList) {
+
+		/*StringBuffer listBuffer = new StringBuffer();
+		int size = phoneList.size();
+		for(int i=0; i<size; i++){
+			if(i != (size-1)){
+				listBuffer.append(phoneList.get(i));
+				listBuffer.append(",");
+			} else {
+				listBuffer.append(phoneList.get(i));
+			}
+		}	*/	
+		
+		String findQUery = "SELECT * FROM theiyers_whatsThePlan.user_informatiion where phone in ("+phoneList+")";
+		try {
+			return jdbcTemplate.query(findQUery,
+					new ParameterizedRowMapper<User>() {
+
+						public User mapRow(ResultSet rs, int rowNum)
+								throws SQLException {
+							if (rs != null) {
+								User user = new User();
+								user.setId(rs.getInt(1));
+								user.setName(rs.getString(2));
+								user.setPhone(rs.getString(3));
+
+								XStream groupXs = new XStream();
+								groupXs.alias("Groups", List.class);
+								groupXs.alias("Entry", String.class);
+								List<String> groups = (List<String>) groupXs
+										.fromXML(rs.getString(4));
+								user.setGroupNames(groups);
+								XStream pendingGroupXs = new XStream();
+								pendingGroupXs.alias("PendingGroups",
+										List.class);
+								pendingGroupXs.alias("Entry", String.class);
+								List<String> pendingGroups = (List<String>) pendingGroupXs
+										.fromXML(rs.getString(5));
+								user.setPendingGroupNames(pendingGroups);
+								user.setImage(rs.getBytes(6));
+
+								return user;
+							}
+							return null;
+						}
+					});
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return null;
+		}
+
+	}
 }
