@@ -25,6 +25,10 @@ public class Plan {
 	private String location;
 	@XmlElement(name = "memberNames")
 	private List<String> memberNames;
+	@XmlElement(name = "membersInvited")
+	private List<String> membersInvited;
+	@XmlElement(name = "groupsInvited")
+	private List<String> groupsInvited;
 	@XmlElement(name = "creator")
 	private String creator;
 
@@ -93,5 +97,21 @@ public class Plan {
 
 	public void setCreator(String creator) {
 		this.creator = creator;
+	}
+	
+	public List<String> getMembersInvited() {
+		return membersInvited;
+	}
+
+	public void setMembersInvited(List<String> membersInvited) {
+		this.membersInvited = membersInvited;
+	}
+
+	public List<String> getGroupsInvited() {
+		return groupsInvited;
+	}
+
+	public void setGroupsInvited(List<String> groupsInvited) {
+		this.groupsInvited = groupsInvited;
 	}
 }

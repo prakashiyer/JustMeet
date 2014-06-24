@@ -15,6 +15,7 @@ import com.justmeet.dao.GroupDAO;
 import com.justmeet.dao.PlanDAO;
 import com.justmeet.dao.UserDAO;
 import com.justmeet.entities.Group;
+import com.justmeet.entities.GroupList;
 import com.justmeet.entities.Plan;
 import com.justmeet.entities.User;
 
@@ -275,4 +276,18 @@ public class GroupService {
 		return null;
 	}
 
+	public GroupList fetchGroupList(String phone) {
+		User user = userDao.fetchUser(phone);
+		List<String> groupNames = user.getGroupNames();
+		List<Group> groups = groupDao.fetchGroupList(groupNames);
+		if (groups != null) {
+			log.info("Group List fetched successfully, Size is: " + groups.size());
+			GroupList groupList = new GroupList();
+			groupList.setGroups(groups);
+			return groupList;
+		} else {
+			log.error("Group List fetch failed ");
+			return new GroupList();
+		}
+	}
 }

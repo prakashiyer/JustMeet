@@ -23,8 +23,10 @@ public class Group
     private List<String> pendingMembers;
     @XmlElement(name="admin")
     private String admin;
+    @XmlElement(name="image")
+	private byte[] image;
 
-    public Group()
+	public Group()
     {
     }
 
@@ -87,5 +89,13 @@ public class Group
     {
         this.admin = admin;
     }
+    
+    public byte[] getImage() {
+		return image;
+	}
+
+	public void setImage(byte[] image) {
+		this.image = image;
+	}
 }
 

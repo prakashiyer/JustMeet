@@ -2,6 +2,7 @@ package com.justmeet.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class PlanDAO {
 	private JdbcTemplate jdbcTemplate;
 
 	@SuppressWarnings("unchecked")
-	public List<Plan> fetchUpcomingPlans(List<String> groupNames) {
+	public List<Plan> fetchUpcomingGroupPlans(List<String> groupNames) {
 
 		String findQuery = "SELECT * FROM theiyers_whatsThePlan.plans where group_name in (";
 		String groups = "";
@@ -75,7 +76,7 @@ public class PlanDAO {
 								plan.setGroupName(rs.getString(3));
 								plan.setStartTime(rs.getTimestamp(4).toString());
 								plan.setLocation(rs.getString(5));
-								plan.setEndTime(rs.getString(8));
+								
 								// Create Members xml
 								XStream membersXs = new XStream();
 								membersXs.alias("Members", List.class);
@@ -84,6 +85,109 @@ public class PlanDAO {
 										.fromXML(rs.getString(6));
 								plan.setMemberNames(memberNames);
 								plan.setCreator(rs.getString(7));
+								
+								plan.setEndTime(rs.getString(8));
+								
+								// Create Groups xml
+								XStream groupsXs = new XStream();
+								groupsXs.alias("Groups", List.class);
+								groupsXs.alias("Entry", String.class);
+								List<String> groups = (List<String>) groupsXs
+										.fromXML(rs.getString(9));
+								plan.setGroupsInvited(groups);
+								
+								// Create Members Invited xml
+								XStream membersInvitedXs = new XStream();
+								membersInvitedXs.alias("MembersInvited", List.class);
+								membersInvitedXs.alias("Entry", String.class);
+								List<String> membersInvited = (List<String>) membersInvitedXs
+										.fromXML(rs.getString(10));
+								plan.setMembersInvited(membersInvited);
+								return plan;
+							}
+							return null;
+						}
+					});
+
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return null;
+		}
+
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Plan> fetchUpcomingPlans(String phone) {
+
+		String findQuery = "SELECT * FROM theiyers_whatsThePlan.plans where (member_names like '%";
+		
+		Calendar calendar = Calendar.getInstance();
+		int month = calendar.get(Calendar.MONTH) + 1;
+		int date = calendar.get(Calendar.DATE);
+		int hour = calendar.get(Calendar.HOUR);
+		int min = calendar.get(Calendar.MINUTE);
+		String strMon = String.valueOf(month);
+		if (month < 10) {
+			strMon = "0" + strMon;
+		}
+		String strdt = String.valueOf(date);
+		if (date < 10) {
+			strdt = "0" + strdt;
+		}
+		String strhr = String.valueOf(hour);
+		if (hour < 10) {
+			strhr = "0" + strhr;
+		}
+		String strMin = String.valueOf(min);
+		if (min < 10) {
+			strMin = "0" + strMin;
+		}
+
+		String startTime = String.valueOf(calendar.get(Calendar.YEAR)) + "-"
+				+ strMon + "-" + strdt + " " + strhr + ":" + strMin + ":00";
+		log.warn("START TIME:" + startTime);
+		findQuery = findQuery + phone + "%' or members_invited like '%"+phone+"%') and start_time > '" + startTime
+				+ "' order by start_time asc";
+		try {
+			return jdbcTemplate.query(findQuery,
+					new ParameterizedRowMapper<Plan>() {
+
+						public Plan mapRow(ResultSet rs, int rowNum)
+								throws SQLException {
+
+							if (rs != null) {
+								Plan plan = new Plan();
+								plan.setId(rs.getInt(1));
+								plan.setName(rs.getString(2));
+								plan.setGroupName(rs.getString(3));
+								plan.setStartTime(rs.getTimestamp(4).toString());
+								plan.setLocation(rs.getString(5));
+								
+								// Create Members xml
+								XStream membersXs = new XStream();
+								membersXs.alias("Members", List.class);
+								membersXs.alias("Entry", String.class);
+								List<String> memberNames = (List<String>) membersXs
+										.fromXML(rs.getString(6));
+								plan.setMemberNames(memberNames);
+								plan.setCreator(rs.getString(7));
+								plan.setEndTime(rs.getString(8));
+								
+								// Create Groups xml
+								XStream groupsXs = new XStream();
+								groupsXs.alias("Groups", List.class);
+								groupsXs.alias("Entry", String.class);
+								List<String> groups = (List<String>) groupsXs
+										.fromXML(rs.getString(9));
+								plan.setGroupsInvited(groups);
+								
+								// Create Members Invited xml
+								XStream membersInvitedXs = new XStream();
+								membersInvitedXs.alias("MembersInvited", List.class);
+								membersInvitedXs.alias("Entry", String.class);
+								List<String> membersInvited = (List<String>) membersInvitedXs
+										.fromXML(rs.getString(10));
+								plan.setMembersInvited(membersInvited);
 								return plan;
 							}
 							return null;
@@ -141,6 +245,22 @@ public class PlanDAO {
 										.fromXML(rs.getString(6));
 								plan.setMemberNames(memberNames);
 								plan.setCreator(rs.getString(7));
+								
+								// Create Groups xml
+								XStream groupsXs = new XStream();
+								groupsXs.alias("Groups", List.class);
+								groupsXs.alias("Entry", String.class);
+								List<String> groups = (List<String>) groupsXs
+										.fromXML(rs.getString(9));
+								plan.setGroupsInvited(groups);
+								
+								// Create Members Invited xml
+								XStream membersInvitedXs = new XStream();
+								membersInvitedXs.alias("MembersInvited", List.class);
+								membersInvitedXs.alias("Entry", String.class);
+								List<String> membersInvited = (List<String>) membersInvitedXs
+										.fromXML(rs.getString(10));
+								plan.setMembersInvited(membersInvited);
 								return plan;
 							}
 							return null;
@@ -292,5 +412,45 @@ public class PlanDAO {
 
 		}
 
+	}
+
+	public boolean newPlan(String planName, List<String> phones,
+			List<String> groups, String startTime, String planLocation,
+			List<String> members, String creator, String endTime) {
+		
+		String insertQuery = "INSERT INTO theiyers_whatsThePlan.plans (name, group_name, groups_invited, members_invited, start_time, location, member_names, creator, end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		// Create members xml
+		XStream membersXs = new XStream();
+		membersXs.alias("Members", List.class);
+		membersXs.alias("Entry", String.class);
+		String membersXml = membersXs.toXML(members);
+		
+		// Create members invited xml
+		XStream membersInvitedXs = new XStream();
+		membersInvitedXs.alias("MembersInvited", List.class);
+		membersInvitedXs.alias("Entry", String.class);
+		String membersInvitedXml = membersInvitedXs.toXML(phones);
+		
+		// Create members xml
+		XStream groupsXs = new XStream();
+		groupsXs.alias("Groups", List.class);
+		groupsXs.alias("Entry", String.class);
+		List<String> groupList = new ArrayList<String>();
+		if(groups != null && !groups.isEmpty()){
+			groupList.addAll(groups);
+		} 
+		
+		String groupsXml = groupsXs.toXML(groupList);
+		
+		
+		try {
+			jdbcTemplate.update(insertQuery, planName, "", groupsXml, membersInvitedXml, startTime,
+					planLocation, membersXml, creator, endTime);
+			return true;
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return false;
+
+		}
 	}
 }

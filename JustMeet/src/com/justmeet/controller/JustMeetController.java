@@ -1,6 +1,7 @@
 package com.justmeet.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.justmeet.entities.ExpenseList;
 import com.justmeet.entities.ExpenseReport;
 import com.justmeet.entities.Group;
+import com.justmeet.entities.GroupList;
 import com.justmeet.entities.Plan;
 import com.justmeet.entities.PlanList;
 import com.justmeet.entities.User;
@@ -122,7 +124,7 @@ public class JustMeetController {
 	public @ResponseBody
 	Group searchGroup(@RequestParam(value = "groupName") String groupName) {
 		logger.info("Group search begin: "+ groupName);
-		return groupService.searchGroup(groupName);
+		return groupService.searchGroup(groupName.replace("%20", " "));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchGroupPlans")
@@ -164,7 +166,6 @@ public class JustMeetController {
 		return planService.fetchPlan(planName);
 	}
 
-	@SuppressWarnings("null")
 	@RequestMapping(method = RequestMethod.GET, value = "/rsvpPlan")
 	public @ResponseBody
 	Plan rsvpPlan(@RequestParam(value = "phone") String phone,
@@ -329,6 +330,65 @@ public class JustMeetController {
 	UserList fetchExistingUsers(@RequestParam(value = "phoneList") String phoneList) {
 		
 		return userService.fetchUserList(phoneList);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchExistingGroups")
+	public @ResponseBody
+	GroupList fetchExistingGroups(@RequestParam(value = "phone") String phone) {
+		
+		return groupService.fetchGroupList(phone);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/newPlan")
+	public @ResponseBody
+	Plan newPlan(@RequestParam(value = "name") String planName,
+			@RequestParam(value = "phone") String phone,
+			@RequestParam(value = "date") String planDate,
+			@RequestParam(value = "time") String planTime,
+			@RequestParam(value = "endDate") String endDate,
+			@RequestParam(value = "endTime") String endTime,
+			@RequestParam(value = "location") String planLocation,
+			@RequestParam(value = "phoneList") String phoneList,
+			@RequestParam(value = "groupList") String groupList,
+			@RequestParam(value = "creator") String creator) {
+		logger.info("New Plan addition");
+		List<String> phones = null;
+		if(!phoneList.equals("")){
+			phones = Arrays.asList(phoneList.split(","));
+		}
+		
+		List<String> groups = null;
+		if(!groupList.equals("")){
+			groups = Arrays.asList(groupList.split(","));
+		}
+		
+		
+		List<String> gcmList = new ArrayList<String>();
+		gcmList.add(phone);
+		if(phones != null && !phones.isEmpty()) {
+			logger.info("Adding phones" +phones.size());
+			gcmList.addAll(phones);
+		}
+		
+		Plan plan = planService.newPlan(planName, phone, planDate, planTime,
+				planLocation, phones, groups, creator, endDate, endTime);
+		if(plan != null && plan.getName().equals(planName)){
+			if(groups != null && !groups.isEmpty()){
+				for(String groupName: groups){
+					Group group = this.groupService.searchGroup(groupName.replace("%20", " "));
+					if(group.getMembers() != null && !group.getMembers().isEmpty()) {
+						logger.info("Adding members" +group.getMembers().size());
+						gcmList.addAll(group.getMembers());
+					}
+				}
+			}
+			
+			this.gcmService.broadcast("Just Meet", "A new plan has been added '"+ planName+"'", gcmList);
+			logger.info("Plan created : "+ planName);
+			return plan;
+		}
+		logger.info("Plan creation failed");
+		return new Plan();
 	}
 	
 	

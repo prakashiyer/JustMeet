@@ -32,15 +32,14 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 		User user = userDao
 				.fetchUser(phone);
 		if (user != null) {
-			List<String> groups = user.getGroupNames();
-			if (!groups.isEmpty()) {
-				log.info("Fetch Upcoming plans for groups");
-				List<Plan> plans = planDao.fetchUpcomingPlans(groups);
-				PlanList planList = new PlanList();
-				planList.setPlans(plans);
-				
-				return planList;
-			}
+			
+			log.info("Fetch Upcoming plans for groups");
+			List<Plan> plans = planDao.fetchUpcomingPlans(phone);
+			PlanList planList = new PlanList();
+			planList.setPlans(plans);
+			
+			return planList;
+			
 		}
 		
 		return new PlanList();
@@ -52,7 +51,7 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 		groups.add(groupName);
 		if (!groups.isEmpty()) {
 			log.info("Fetch Upcoming plans for group: "+groupName);
-			List<Plan> plans = planDao.fetchUpcomingPlans(groups);
+			List<Plan> plans = planDao.fetchUpcomingGroupPlans(groups);
 			PlanList planList = new PlanList();
 			planList.setPlans(plans);
 			
@@ -177,6 +176,56 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 				
 				return plan;
 			}
+		}
+		
+		return new Plan();
+	}
+
+	public Plan newPlan(String planName, String phone, String planDate,
+			String planTime, String planLocation, List<String> phones,
+			List<String> groups, String creator, String endDate, String endTime) {
+		List<String> members = new ArrayList<String>();
+		members.add(phone);
+		List<String> phoneList = new ArrayList<String>();
+		phoneList.add(phone);
+		if(phones != null && phones.size() > 0) {
+			log.info("Adding phones" +phones.size());
+			phoneList.addAll(phones);
+		}
+		
+		if(groups != null && !groups.isEmpty()){
+			 for(String groupName: groups){
+		        	log.info("Fetching Group" +groupName);
+					Group group = groupDao.fetchGroup(groupName.replace("%20", " "));
+					
+					
+					if(group.getMembers() != null && group.getMembers().size() > 0) {
+						log.info("Adding members" +group.getMembers().size());
+						phoneList.addAll(group.getMembers());
+					}
+					
+				}
+		}
+       
+
+		boolean success = planDao.newPlan(planName, phoneList, groups, planDate
+				+ " " + planTime, planLocation, members, creator, endDate + " " + endTime);
+		if (success) {
+			if(groups != null && !groups.isEmpty()){
+				for(String groupName: groups){
+					Group group = groupDao.fetchGroupInformation(groupName.replace("%20", " "));
+					List<String> plans = group.getPlanNames();
+					plans.add(planName);
+					groupDao.updateGroupWithUserPlan(
+							groupName, plans);
+					
+				}
+			}
+			
+			Plan plan = planDao.fetchPlanInformation(planName);
+			
+			return plan;
+			
 		}
 		
 		return new Plan();

@@ -42,6 +42,7 @@ public class GroupDAO {
 	
 	@SuppressWarnings("unchecked")
 	public Group fetchGroup(String groupName) {
+		log.info("Fetching Group" +groupName);
 		String findQUery = "SELECT * FROM theiyers_whatsThePlan.groups where name = ?";
 		try {
 			return jdbcTemplate.queryForObject(findQUery,
@@ -252,6 +253,66 @@ public class GroupDAO {
 			return true;
 		} catch (Exception e) {
 			return false;
+		}
+
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Group> fetchGroupList(List<String> groups) {
+		
+		StringBuffer stringBuff = new StringBuffer();
+		int size = groups.size();
+		
+		for(int i=0;i<size; i++){
+			stringBuff.append("'");
+			stringBuff.append(groups.get(i));
+			stringBuff.append("'");
+			if(i != size-1){
+				stringBuff.append(",");
+			}
+		}
+		
+		String findQUery = "SELECT * FROM theiyers_whatsThePlan.groups where name in ("+stringBuff.toString()+")";
+		try {
+			return jdbcTemplate.query(findQUery,
+					new ParameterizedRowMapper<Group>() {
+
+						public Group mapRow(ResultSet rs, int rowNum)
+								throws SQLException {
+							if (rs != null) {
+								Group group = new Group();
+								group.setId(rs.getInt(1));
+								group.setName(rs.getString(2));
+								XStream membersXs = new XStream();
+								membersXs.alias("Members", List.class);
+								membersXs.alias("Entry", String.class);
+								List<String> phones = (List<String>) membersXs
+										.fromXML(rs.getString(3));
+								group.setMembers(phones);
+								XStream plansXs = new XStream();
+								plansXs.alias("Plans", List.class);
+								plansXs.alias("Entry", String.class);
+								List<String> plans = (List<String>) plansXs
+										.fromXML(rs.getString(4));
+								group.setPlanNames(plans);
+								group.setImage(rs.getBytes(5));
+								XStream pendingMembersXs = new XStream();
+								pendingMembersXs.alias("PendingMembers",
+										List.class);
+								pendingMembersXs.alias("Entry", String.class);
+								List<String> pendingMembers = (List<String>) pendingMembersXs
+										.fromXML(rs.getString(6));
+								group.setPendingMembers(pendingMembers);
+								group.setAdmin(rs.getString(7));
+
+								return group;
+							}
+							return null;
+						}
+					});
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return null;
 		}
 
 	}
