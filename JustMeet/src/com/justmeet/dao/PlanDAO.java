@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -124,7 +125,7 @@ public class PlanDAO {
 		Calendar calendar = Calendar.getInstance();
 		int month = calendar.get(Calendar.MONTH) + 1;
 		int date = calendar.get(Calendar.DATE);
-		int hour = calendar.get(Calendar.HOUR);
+		int hour = calendar.get(Calendar.HOUR_OF_DAY);
 		int min = calendar.get(Calendar.MINUTE);
 		String strMon = String.valueOf(month);
 		if (month < 10) {
@@ -310,7 +311,7 @@ public class PlanDAO {
 		Calendar endCal = Calendar.getInstance();
 		int month = endCal.get(Calendar.MONTH)+1;
 		int date = endCal.get(Calendar.DATE);
-		int hour = endCal.get(Calendar.HOUR);
+		int hour = endCal.get(Calendar.HOUR_OF_DAY);
 		int min = endCal.get(Calendar.MINUTE);
 		String strMon = String.valueOf(month);
 		if(month < 10){
@@ -338,14 +339,14 @@ public class PlanDAO {
 		
 		int smonth = endCal.get(Calendar.MONTH)+1;
 		int sdate = endCal.get(Calendar.DATE);
-		int shour = endCal.get(Calendar.HOUR);
+		int shour = endCal.get(Calendar.HOUR_OF_DAY);
 		int smin = endCal.get(Calendar.MINUTE);
 		String strsMon = String.valueOf(smonth);
 		if(smonth < 10){
 			strsMon = "0"+strsMon;
 		}
 		String strsdt = String.valueOf(sdate);
-		if(date < 10){
+		if(sdate < 10){
 			strsdt = "0"+strsdt;
 		}
 		String strshr = String.valueOf(shour);
