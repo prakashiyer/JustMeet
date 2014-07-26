@@ -306,7 +306,7 @@ public class PlanDAO {
 	public List<Plan> fetchPlanHistory(String groupName) {
 		
 		
-		String findQuery = "SELECT * FROM theiyers_whatsThePlan.plans where group_name='"+groupName;
+		String findQuery = "SELECT * FROM theiyers_whatsThePlan.plans where groups_invited like '%"+groupName;
 		
 		Calendar endCal = Calendar.getInstance();
 		int month = endCal.get(Calendar.MONTH)+1;
@@ -363,7 +363,7 @@ public class PlanDAO {
 				+ " " +strshr
 				+ ":" +strsMin
 				+ ":00";
-		findQuery = findQuery + "' and start_time > '"+startTime+"' and start_time < '"+endTime+"' order by start_time desc";
+		findQuery = findQuery + "%' and start_time > '"+startTime+"' and start_time < '"+endTime+"' order by start_time desc";
 		try {
 			return jdbcTemplate.query(findQuery,
 					new ParameterizedRowMapper<Plan>() {
