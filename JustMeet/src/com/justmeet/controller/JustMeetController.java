@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -328,7 +329,15 @@ public class JustMeetController {
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchExistingUsers")
 	public @ResponseBody
 	UserList fetchExistingUsers(@RequestParam(value = "phoneList") String phoneList) {
-		
+		return userService.fetchUserList(phoneList);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchGroupUsers")
+	public @ResponseBody
+	UserList fetchGroupUsers(@RequestParam(value = "groupName") String groupName) {
+		Group group = groupService.searchGroup(groupName);
+		List<String> memberList = group.getMembers();
+		String phoneList = StringUtils.collectionToCommaDelimitedString(memberList);
 		return userService.fetchUserList(phoneList);
 	}
 	
