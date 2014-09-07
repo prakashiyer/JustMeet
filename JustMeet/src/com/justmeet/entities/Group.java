@@ -19,6 +19,8 @@ public class Group
     private List<String> members;
     @XmlElement(name="planNames")
     private List<String>  planNames;
+    @XmlElement(name="planIds")
+    private List<String>  planIds;
     @XmlElement(name="pendingMembers")
     private List<String> pendingMembers;
     @XmlElement(name="admin")
@@ -68,6 +70,16 @@ public class Group
     public void setPlanNames(List<String> planNames)
     {
         this.planNames = planNames;
+    }
+    
+    public List<String> getPlanIds()
+    {
+        return planIds;
+    }
+
+    public void setPlanIds(List<String> planIds)
+    {
+        this.planIds = planIds;
     }
 
     public List<String> getPendingMembers()

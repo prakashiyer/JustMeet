@@ -19,12 +19,12 @@ public class ExpenseDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
-	public boolean addExpense(String phone, String planName, String groupName, String title,
+	public boolean addExpense(String phone, String planName, String planIndex, String groupName, String groupIndex, String title,
 			int value) {
-		String insertQuery = "INSERT INTO theiyers_whatsThePlan.expenses (phone, plan, group_name, title, value) VALUES (?, ?, ?, ?, ?)";
+		String insertQuery = "INSERT INTO theiyers_whatsThePlan.expenses (phone, plan, plan_id, group_name, group_id, title, value) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		
 		try {
-			jdbcTemplate.update(insertQuery, phone, planName, groupName, title, value);
+			jdbcTemplate.update(insertQuery, phone, planName, planIndex, groupName, groupIndex, title, value);
 			return true;
 		} catch (Exception e) {
 			log.warn(e.getMessage());
@@ -34,12 +34,12 @@ public class ExpenseDAO {
 
 	}
 	
-	public boolean updateExpense(String phone, String planName, String groupName, String title,
+	public boolean updateExpense(String phone, String planName, String planIndex, String groupName, String groupIndex, String title,
 			int value) {
-		String insertQuery = "UPDATE theiyers_whatsThePlan.expenses SET value=? where phone = ? and plan=? and group_name=? and title=?";
+		String insertQuery = "UPDATE theiyers_whatsThePlan.expenses SET value=? where phone = ? and plan=? and plan_id = ?and group_name=? and group_id=? and title=?";
 		
 		try {
-			jdbcTemplate.update(insertQuery,value, phone, planName, groupName, title);
+			jdbcTemplate.update(insertQuery,value, phone, planName, planIndex, groupName, groupIndex, title);
 			return true;
 		} catch (Exception e) {
 			log.warn(e.getMessage());
@@ -49,8 +49,8 @@ public class ExpenseDAO {
 
 	}
 	
-	public List<Expense> fetchExpense(String phone, String planName, String groupName) {
-		String findQuery = "SELECT * FROM theiyers_whatsThePlan.expenses where phone = ? and plan=? and group_name=?";
+	public List<Expense> fetchExpense(String phone, String planName, String planIndex, String groupName, String groupIndex) {
+		String findQuery = "SELECT * FROM theiyers_whatsThePlan.expenses where phone = ? and plan=? and plan_id = ? and group_name=? and group_id=?";
 		
 		try {
 			return jdbcTemplate.query(findQuery,
@@ -72,7 +72,7 @@ public class ExpenseDAO {
 							}
 							return null;
 						}
-					}, phone, planName, groupName);
+					}, phone, planName, planIndex, groupName, groupIndex);
 
 		} catch (Exception e) {
 			log.warn(e.getMessage());

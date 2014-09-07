@@ -1,17 +1,21 @@
 package com.justmeet.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 import com.justmeet.entities.Plan;
 import com.thoughtworks.xstream.XStream;
@@ -24,15 +28,15 @@ public class PlanDAO {
 	private JdbcTemplate jdbcTemplate;
 
 	@SuppressWarnings("unchecked")
-	public List<Plan> fetchUpcomingGroupPlans(List<String> groupNames) {
+	public List<Plan> fetchUpcomingGroupPlans(List<String> groupNames, List<String> groupIds) {
 
-		String findQuery = "SELECT * FROM theiyers_whatsThePlan.plans where group_name in (";
+		String findQuery = "SELECT * FROM theiyers_whatsThePlan.plans where (";
 		String groups = "";
-		for (String groupName : groupNames) {
-			if (groups.isEmpty()) {
-				groups = groups + "'" + groupName + "'";
+		for (String groupId : groupIds) {
+			if (groups.equals("")) {
+				groups = groups + "groups_invited like '%" + groupId + "%'";
 			} else {
-				groups = groups + ",'" + groupName + "'";
+				groups = groups + " or groups_invited like '%" + groupId + "%'";
 			}
 
 		}
@@ -222,8 +226,14 @@ public class PlanDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Plan fetchPlanInformation(String name) {
-		String findQUery = "SELECT * FROM theiyers_whatsThePlan.plans where name = ?";
+	public Plan fetchPlanInformation(String name, String planIndex) {
+		String findQUery = "";
+		if(name != null){
+			findQUery = "SELECT * FROM theiyers_whatsThePlan.plans where name = ? and id=?";
+		} else {
+			findQUery = "SELECT * FROM theiyers_whatsThePlan.plans where id=?";
+		}
+		
 		try {
 			return jdbcTemplate.queryForObject(findQUery,
 					new ParameterizedRowMapper<Plan>() {
@@ -266,7 +276,7 @@ public class PlanDAO {
 							}
 							return null;
 						}
-					}, name);
+					}, name, planIndex);
 
 		} catch (Exception e) {
 			return null;
@@ -274,10 +284,10 @@ public class PlanDAO {
 
 	}
 
-	public boolean deletePlan(String planName) {
-		String deleteQuery = "DELETE FROM theiyers_whatsThePlan.plans WHERE name=?";
+	public boolean deletePlan(String planName, String planIndex) {
+		String deleteQuery = "DELETE FROM theiyers_whatsThePlan.plans WHERE name=? and id=?";
 		try {
-			jdbcTemplate.update(deleteQuery, planName);
+			jdbcTemplate.update(deleteQuery, planName, planIndex);
 			return true;
 		} catch (Exception e) {
 			log.warn(e.getMessage());
@@ -285,15 +295,15 @@ public class PlanDAO {
 		}
 	}
 
-	public boolean updatePlanWithMember(String planName, List<String> members) {
-		String updateQuery = "UPDATE theiyers_whatsThePlan.plans SET member_names =? WHERE name=?";
+	public boolean updatePlanWithMember(String planId, List<String> members) {
+		String updateQuery = "UPDATE theiyers_whatsThePlan.plans SET member_names =? WHERE id=?";
 		// Create plans xml
 		XStream membersXs = new XStream();
 		membersXs.alias("Members", List.class);
 		membersXs.alias("Entry", String.class);
 		String membersXml = membersXs.toXML(members);
 		try {
-			jdbcTemplate.update(updateQuery, membersXml, planName);
+			jdbcTemplate.update(updateQuery, membersXml, planId);
 			return true;
 		} catch (Exception e) {
 			log.warn(e.getMessage());
@@ -303,10 +313,10 @@ public class PlanDAO {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Plan> fetchPlanHistory(String groupName) {
+	public List<Plan> fetchPlanHistory(String groupName, String groupIndex) {
 		
 		
-		String findQuery = "SELECT * FROM theiyers_whatsThePlan.plans where groups_invited like '%"+groupName;
+		String findQuery = "SELECT * FROM theiyers_whatsThePlan.plans where groups_invited like '%"+groupIndex;
 		
 		Calendar endCal = Calendar.getInstance();
 		int month = endCal.get(Calendar.MONTH)+1;
@@ -399,13 +409,13 @@ public class PlanDAO {
 		}
 	}
 	
-	public boolean editPlan(String oldName, String newName, String startTime,
+	public boolean editPlan(String oldName, String newName, String planIndex, String startTime,
 			String location, String endTime) {
-		String updateQuery = "UPDATE theiyers_whatsThePlan.plans SET name=?, start_time=?, location=?, end_time=? WHERE name=?";
+		String updateQuery = "UPDATE theiyers_whatsThePlan.plans SET name=?, start_time=?, location=?, end_time=? WHERE name=? and planIndex=?";
 		
 		try {
 			jdbcTemplate.update(updateQuery, newName, startTime,
-					location, endTime, oldName);
+					location, endTime, oldName, planIndex);
 			return true;
 		} catch (Exception e) {
 			log.warn(e.getMessage());
@@ -415,42 +425,61 @@ public class PlanDAO {
 
 	}
 
-	public boolean newPlan(String planName, List<String> phones,
-			List<String> groups, String startTime, String planLocation,
-			List<String> members, String creator, String endTime) {
-		
-		String insertQuery = "INSERT INTO theiyers_whatsThePlan.plans (name, group_name, groups_invited, members_invited, start_time, location, member_names, creator, end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		// Create members xml
-		XStream membersXs = new XStream();
-		membersXs.alias("Members", List.class);
-		membersXs.alias("Entry", String.class);
-		String membersXml = membersXs.toXML(members);
-		
-		// Create members invited xml
-		XStream membersInvitedXs = new XStream();
-		membersInvitedXs.alias("MembersInvited", List.class);
-		membersInvitedXs.alias("Entry", String.class);
-		String membersInvitedXml = membersInvitedXs.toXML(phones);
-		
-		// Create members xml
-		XStream groupsXs = new XStream();
-		groupsXs.alias("Groups", List.class);
-		groupsXs.alias("Entry", String.class);
-		List<String> groupList = new ArrayList<String>();
-		if(groups != null && !groups.isEmpty()){
-			groupList.addAll(groups);
-		} 
-		
-		String groupsXml = groupsXs.toXML(groupList);
-		
+	public int newPlan(final String planName,final List<String> phones,
+			final List<String> groups,final String startTime,final String planLocation,
+			final List<String> members,final String creator,final String endTime) {
+			
 		
 		try {
-			jdbcTemplate.update(insertQuery, planName, "", groupsXml, membersInvitedXml, startTime,
-					planLocation, membersXml, creator, endTime);
-			return true;
+			KeyHolder keyHolder = new GeneratedKeyHolder();
+			
+			jdbcTemplate.update(new PreparedStatementCreator() {
+				String insertQuery = "INSERT INTO theiyers_whatsThePlan.plans (name, group_name, groups_invited, members_invited, start_time, location, member_names, creator, end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                
+				
+				@Override
+				public PreparedStatement createPreparedStatement(Connection arg0)
+						throws SQLException {
+					
+					// Create members xml
+					XStream membersXs = new XStream();
+					membersXs.alias("Members", List.class);
+					membersXs.alias("Entry", String.class);
+					String membersXml = membersXs.toXML(members);
+					
+					// Create members invited xml
+					XStream membersInvitedXs = new XStream();
+					membersInvitedXs.alias("MembersInvited", List.class);
+					membersInvitedXs.alias("Entry", String.class);
+					String membersInvitedXml = membersInvitedXs.toXML(phones);
+					
+					// Create members xml
+					XStream groupsXs = new XStream();
+					groupsXs.alias("Groups", List.class);
+					groupsXs.alias("Entry", String.class);
+					List<String> groupList = new ArrayList<String>();
+					if(groups != null && !groups.isEmpty()){
+						groupList.addAll(groups);
+					} 
+					String groupsXml = groupsXs.toXML(groupList);
+					// TODO Auto-generated method stub
+					PreparedStatement ps = arg0.prepareStatement(insertQuery, new String[] { "id"});
+					ps.setString(1,planName);
+					ps.setString(2,"");
+					ps.setString(3,groupsXml);
+					ps.setString(4,membersInvitedXml);
+					ps.setString(5,startTime);
+					ps.setString(6,planLocation);
+					ps.setString(7,membersXml);
+					ps.setString(8,creator);
+					ps.setString(9,endTime);
+					return ps;
+				}
+			    }, keyHolder);
+			return keyHolder.getKey().intValue();
 		} catch (Exception e) {
 			log.warn(e.getMessage());
-			return false;
+			return 0;
 
 		}
 	}

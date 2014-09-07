@@ -37,18 +37,18 @@ public class ExpenseService {
 	@Autowired
 	private UserDAO userDao;
 
-	public void add(String phone, String planName, String groupName,
-			String title, String value) {
+	public void add(String phone, String planName, String planIndex, String groupName,
+			String groupIndex, String title, String value) {
 		log.info("Adding expense for " +phone);
-		expenseDao.addExpense(phone, planName,
-				groupName, title, Integer.valueOf(value));
+		expenseDao.addExpense(phone, planName, planIndex,
+				groupName, groupIndex, title, Integer.valueOf(value));
 		
 	}
 
-	public void update(String phone, String planName, String groupName,
+	public void update(String phone, String planName, String planIndex, String groupName, String groupIndex,
 			String title, String value) {
-		expenseDao.updateExpense(phone, planName,
-				groupName, title, Integer.valueOf(value));
+		expenseDao.updateExpense(phone, planName, planIndex,
+				groupName, groupIndex, title, Integer.valueOf(value));
 		
 	}
 
@@ -58,9 +58,9 @@ public class ExpenseService {
 				groupName, title);
 	}
 
-	public ExpenseList fetch(String phone, String planName, String groupName) {
+	public ExpenseList fetch(String phone, String planName, String planIndex, String groupName, String groupIndex) {
 		List<Expense> expenses = expenseDao.fetchExpense(phone,
-				planName, groupName);
+				planName, planIndex, groupName, groupIndex);
 		ExpenseList expenseList = new ExpenseList();
 		if (expenses != null && !expenses.isEmpty()) {
 			expenseList.setExpenses(expenses);
@@ -69,8 +69,8 @@ public class ExpenseService {
 		return expenseList;
 	}
 
-	public ExpenseReport generateReport(String planName) {
-		Plan plan = planDao.fetchPlanInformation(planName);
+	public ExpenseReport generateReport(String planName, String planIndex, String groupIndex) {
+		Plan plan = planDao.fetchPlanInformation(planName, planIndex);
 		ExpenseReport report = new ExpenseReport();
 		List<ExpenseRow> expenseRows = new ArrayList<ExpenseRow>();
 		if (plan != null) {
@@ -83,7 +83,7 @@ public class ExpenseService {
 				int totalExpense = 0;
 				for (String member : members) {
 					List<Expense> expenses = expenseDao.fetchExpense(
-							member, planName, group);
+							member, planName, planIndex, group, groupIndex);
 					int memberExpense = 0;
 					if (expenses != null && !expenses.isEmpty()) {
 						for (Expense expense : expenses) {

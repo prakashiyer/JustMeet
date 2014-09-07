@@ -23,10 +23,10 @@ public class UserDAO {
 
 	public boolean addUser(String name, String phone) {
 		String groups = "<Groups/>";
-		String insertQuery = "INSERT INTO theiyers_whatsThePlan.user_informatiion (name, phone, groups, pending_groups) VALUES (?, ?, ?, ?)";
+		String insertQuery = "INSERT INTO theiyers_whatsThePlan.user_informatiion (name, phone, groups, pending_groups, groups_ids, pending_groups_ids) VALUES (?, ?, ?, ?, ?, ?)";
 		try {
 			jdbcTemplate.update(insertQuery, name, phone, groups,
-					"<PendingGroups/>");
+					"<PendingGroups/>","<GroupIds/>","<PendingGroupIds/>");
 			log.info("User added successfully: " + phone + "/" + name);
 			return true;
 		} catch (Exception e) {
@@ -56,6 +56,7 @@ public class UserDAO {
 								List<String> groups = (List<String>) groupXs
 										.fromXML(rs.getString(4));
 								user.setGroupNames(groups);
+								
 								XStream pendingGroupXs = new XStream();
 								pendingGroupXs.alias("PendingGroups",
 										List.class);
@@ -63,6 +64,23 @@ public class UserDAO {
 								List<String> pendingGroups = (List<String>) pendingGroupXs
 										.fromXML(rs.getString(5));
 								user.setPendingGroupNames(pendingGroups);
+								
+								user.setImage(rs.getBytes(6));
+								
+								XStream groupIdsXs = new XStream();
+								groupIdsXs.alias("GroupIds", List.class);
+								groupIdsXs.alias("Entry", String.class);
+								List<String> groupIds = (List<String>) groupIdsXs
+										.fromXML(rs.getString(7));
+								user.setGroupIds(groupIds);
+								
+								XStream pendingGroupIdsXs = new XStream();
+								pendingGroupIdsXs.alias("PendingGroupIds",
+										List.class);
+								pendingGroupIdsXs.alias("Entry", String.class);
+								List<String> pendingGroupIds = (List<String>) pendingGroupIdsXs
+										.fromXML(rs.getString(8));
+								user.setPendingGroupIds(pendingGroupIds);
 
 								return user;
 							}
@@ -77,15 +95,21 @@ public class UserDAO {
 
 	}
 
-	public boolean updateUserWithGroupName(String phone, List<String> groups) {
-		String updateQuery = "UPDATE theiyers_whatsThePlan.user_informatiion SET groups =? WHERE phone=?";
+	public boolean updateUserWithGroupName(String phone, List<String> groups, List<String> groupIds) {
+		String updateQuery = "UPDATE theiyers_whatsThePlan.user_informatiion SET groups =?, groups_ids=? WHERE phone=?";
 		// Create groups xml
 		XStream groupXs = new XStream();
 		groupXs.alias("Groups", List.class);
 		groupXs.alias("Entry", String.class);
 		String groupXml = groupXs.toXML(groups);
+		
+		// Create groups xml
+		XStream groupIdsXs = new XStream();
+		groupIdsXs.alias("GroupIds", List.class);
+		groupIdsXs.alias("Entry", String.class);
+		String groupIdsXml = groupIdsXs.toXML(groupIds);
 		try {
-			jdbcTemplate.update(updateQuery, groupXml, phone);
+			jdbcTemplate.update(updateQuery, groupXml, groupIdsXml, phone);
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -129,15 +153,22 @@ public class UserDAO {
 	}
 	
 	public boolean updateUserWithPendingGroupName(String phone,
-			List<String> pendingGroups) {
-		String updateQuery = "UPDATE theiyers_whatsThePlan.user_informatiion SET pending_groups =? WHERE phone=?";
+			List<String> pendingGroups, List<String> pendingGroupIds) {
+		String updateQuery = "UPDATE theiyers_whatsThePlan.user_informatiion SET pending_groups =?, pending_groups_ids =? WHERE phone=?";
 		// Create groups xml
 		XStream pendingGroupsXs = new XStream();
 		pendingGroupsXs.alias("PendingGroups", List.class);
 		pendingGroupsXs.alias("Entry", String.class);
 		String pendingGroupsXml = pendingGroupsXs.toXML(pendingGroups);
+		
+		// Create groups xml
+		XStream pendingGroupIdsXs = new XStream();
+		pendingGroupIdsXs.alias("PendingGroupIds", List.class);
+		pendingGroupIdsXs.alias("Entry", String.class);
+		String pendingGroupIdsXml = pendingGroupIdsXs.toXML(pendingGroupIds);
+				
 		try {
-			jdbcTemplate.update(updateQuery, pendingGroupsXml, phone);
+			jdbcTemplate.update(updateQuery, pendingGroupsXml, pendingGroupIdsXml, phone);
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -145,8 +176,9 @@ public class UserDAO {
 	}
 
 	public boolean updateUserWithBothGroups(String phone,
-			List<String> groups, List<String> pendingGroups) {
-		String updateQuery = "UPDATE theiyers_whatsThePlan.user_informatiion SET groups =?,pending_groups =? WHERE phone=?";
+			List<String> groups, List<String> pendingGroups,
+			List<String> groupIds, List<String> pendingGroupIds) {
+		String updateQuery = "UPDATE theiyers_whatsThePlan.user_informatiion SET groups =?,pending_groups =?,groups_ids =?,pending_groups_ids =? WHERE phone=?";
 		// Create groups xml
 		XStream groupXs = new XStream();
 		groupXs.alias("Groups", List.class);
@@ -157,8 +189,19 @@ public class UserDAO {
 		pendingGroupsXs.alias("PendingGroups", List.class);
 		pendingGroupsXs.alias("Entry", String.class);
 		String pendingGroupsXml = pendingGroupsXs.toXML(pendingGroups);
+		
+		// Create groups xml
+		XStream groupIdsXs = new XStream();
+		groupIdsXs.alias("GroupIds", List.class);
+		groupIdsXs.alias("Entry", String.class);
+		String groupIdsXml = groupIdsXs.toXML(groupIds);
+		// Create groups xml
+		XStream pendingGroupIdsXs = new XStream();
+		pendingGroupIdsXs.alias("PendingGroupIds", List.class);
+		pendingGroupIdsXs.alias("Entry", String.class);
+		String pendingGroupIdsXml = pendingGroupIdsXs.toXML(pendingGroupIds);
 		try {
-			jdbcTemplate.update(updateQuery, groupXml, pendingGroupsXml, phone);
+			jdbcTemplate.update(updateQuery, groupXml, pendingGroupsXml,groupIdsXml,pendingGroupIdsXml, phone);
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -179,17 +222,6 @@ public class UserDAO {
 	
 	@SuppressWarnings("unchecked")
 	public List<User> fetchUserList(String phoneList) {
-
-		/*StringBuffer listBuffer = new StringBuffer();
-		int size = phoneList.size();
-		for(int i=0; i<size; i++){
-			if(i != (size-1)){
-				listBuffer.append(phoneList.get(i));
-				listBuffer.append(",");
-			} else {
-				listBuffer.append(phoneList.get(i));
-			}
-		}	*/	
 		
 		String findQUery = "SELECT * FROM theiyers_whatsThePlan.user_informatiion where phone in ("+phoneList+")";
 		try {

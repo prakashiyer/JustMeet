@@ -19,8 +19,12 @@ public class User {
 	private String phone;
 	@XmlElement(name="groupNames")
 	private List<String> groupNames;
+	@XmlElement(name="groupIds")
+	private List<String> groupIds;
 	@XmlElement(name="pendingGroupNames")
 	private List<String> pendingGroupNames;
+	@XmlElement(name="pendingGroupIds")
+	private List<String> pendingGroupIds;
 	@XmlElement(name="image")
 	private byte[] image;
 
@@ -59,6 +63,14 @@ public class User {
 	public void setGroupNames(List<String> groupNames) {
 		this.groupNames = groupNames;
 	}
+	
+	public List<String> getGroupIds() {
+		return groupIds;
+	}
+
+	public void setGroupIds(List<String> groupIds) {
+		this.groupIds = groupIds;
+	}
 
 	public List<String> getPendingGroupNames() {
 		return pendingGroupNames;
@@ -66,6 +78,14 @@ public class User {
 
 	public void setPendingGroupNames(List<String> pendingGroupNames) {
 		this.pendingGroupNames = pendingGroupNames;
+	}
+	
+	public List<String> getPendingGroupIds() {
+		return pendingGroupIds;
+	}
+
+	public void setPendingGroupIds(List<String> pendingGroupIds) {
+		this.pendingGroupIds = pendingGroupIds;
 	}
 	
 	public byte[] getImage() {

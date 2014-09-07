@@ -93,34 +93,36 @@ public class UserService {
 					Group group = groupDao
 							.fetchGroupInformation(groupName);
 					if (group != null) {
-						List<String> plans = group.getPlanNames();
-						if (plans != null && !plans.isEmpty()) {
-							for (String planName : plans) {
+						List<String> planIds = group.getPlanIds();
+						if (planIds != null && !planIds.isEmpty()) {
+							for (String planId : planIds) {
 								Plan plan = planDao
-										.fetchPlanInformation(planName);
+										.fetchPlanInformation(null, planId);
 								if (plan != null) {
 									List<String> members = plan
 											.getMemberNames();
 									members.remove(phone);
 									if (members.isEmpty()) {
-										planDao.deletePlan(planName);
+										planDao.deletePlan(plan.getName(), planId);
 									} else {
 										planDao.updatePlanWithMember(
-												planName, members);
+												planId, members);
 									}
 								}
 							}
 						}
 						List<String> members = group.getMembers();
 						members.remove(phone);
+						
+						String groupIndex = String.valueOf(group.getId());
 
 						if (members.isEmpty()) {
-							groupDao.deleteGroup(groupName);
+							groupDao.deleteGroup(groupName, groupIndex);
 						} else {
 							groupDao.updateGroupWithUser(
-									groupName, members);
+									groupName, groupIndex, members);
 							if (phone.equals(group.getAdmin())) {
-								groupDao.updateGroupAdmin(groupName,
+								groupDao.updateGroupAdmin(groupName, groupIndex,
 										members.get(0));
 							}
 						}
@@ -135,7 +137,7 @@ public class UserService {
 					List<String> pendingMembers = group.getPendingMembers();
 					pendingMembers.remove(phone);
 
-					groupDao.updateGroupWithPendingMember(groupName,
+					groupDao.updateGroupWithPendingMember(groupName, String.valueOf(group.getId()),
 							pendingMembers);
 				}
 			}
