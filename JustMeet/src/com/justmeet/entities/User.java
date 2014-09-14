@@ -17,17 +17,26 @@ public class User {
 	private String name;
 	@XmlElement(name="phone")
 	private String phone;
-	@XmlElement(name="groupNames")
-	private List<String> groupNames;
-	@XmlElement(name="groupIds")
-	private List<String> groupIds;
-	@XmlElement(name="pendingGroupNames")
-	private List<String> pendingGroupNames;
-	@XmlElement(name="pendingGroupIds")
-	private List<String> pendingGroupIds;
+	@XmlElement(name="bloodGroup")
+	private String bloodGroup;
+	@XmlElement(name="dob")
+	private String dob;
+	@XmlElement(name="sex")
+	private String sex;
+	@XmlElement(name="address")
+	private String address;
+	@XmlElement(name="doctorFlag")
+	private String doctorFlag;
+	@XmlElement(name="primaryCenterId")
+	private int primaryCenterId;
+	@XmlElement(name="primaryDoctorId")
+	private int primaryDoctorId;
 	@XmlElement(name="image")
 	private byte[] image;
+	@XmlElement(name="centers")
+	private List<String> centers;
 
+ 
 	public User(){
 		
 	}
@@ -55,38 +64,6 @@ public class User {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-
-	public List<String> getGroupNames() {
-		return groupNames;
-	}
-
-	public void setGroupNames(List<String> groupNames) {
-		this.groupNames = groupNames;
-	}
-	
-	public List<String> getGroupIds() {
-		return groupIds;
-	}
-
-	public void setGroupIds(List<String> groupIds) {
-		this.groupIds = groupIds;
-	}
-
-	public List<String> getPendingGroupNames() {
-		return pendingGroupNames;
-	}
-
-	public void setPendingGroupNames(List<String> pendingGroupNames) {
-		this.pendingGroupNames = pendingGroupNames;
-	}
-	
-	public List<String> getPendingGroupIds() {
-		return pendingGroupIds;
-	}
-
-	public void setPendingGroupIds(List<String> pendingGroupIds) {
-		this.pendingGroupIds = pendingGroupIds;
-	}
 	
 	public byte[] getImage() {
 		return image;
@@ -96,4 +73,67 @@ public class User {
 		this.image = image;
 	}
 
+	public String getBloodGroup() {
+		return bloodGroup;
+	}
+
+	public void setBloodGroup(String bloodGroup) {
+		this.bloodGroup = bloodGroup;
+	}
+
+	public String getDob() {
+		return dob;
+	}
+
+	public void setDob(String dob) {
+		this.dob = dob;
+	}
+
+	public String getSex() {
+		return sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getDoctorFlag() {
+		return doctorFlag;
+	}
+
+	public void setDoctorFlag(String doctorFlag) {
+		this.doctorFlag = doctorFlag;
+	}
+
+	public int getPrimaryCenterId() {
+		return primaryCenterId;
+	}
+
+	public void setPrimaryCenterId(int primaryCenterId) {
+		this.primaryCenterId = primaryCenterId;
+	}
+
+	public int getPrimaryDoctorId() {
+		return primaryDoctorId;
+	}
+
+	public void setPrimaryDoctorId(int primaryDoctorId) {
+		this.primaryDoctorId = primaryDoctorId;
+	}
+
+	public List<String> getCenters() {
+		return centers;
+	}
+
+	public void setCenters(List<String> centers) {
+		this.centers = centers;
+	}
 }
