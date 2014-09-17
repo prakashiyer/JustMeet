@@ -181,6 +181,13 @@ public class JustMeetController {
 
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchUserCenters")
+	public @ResponseBody
+	CenterList fetchUserCenters(
+			@RequestParam(value = "phone") String phone) {
+		return centerService.fetchUserCenters(phone);
+	}
+	
 	
 	//************************************** APPOINTMENTS ***********************************************
 	

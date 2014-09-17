@@ -211,6 +211,38 @@ public class CenterDAO {
 		}
 
 	}
+    
+    public List<Center> fetchUserCenters(String centers) {
+
+		String findQUery = "SELECT * FROM theiyers_whatsThePlan.hm_centers where id in ("
+				+ centers + ")";
+		try {
+			return jdbcTemplate.query(findQUery,
+					new ParameterizedRowMapper<Center>() {
+
+						public Center mapRow(ResultSet rs, int rowNum)
+								throws SQLException {
+							if (rs != null) {
+								Center center = new Center();
+								center.setId(rs.getInt(1));
+								center.setName(rs.getString(2));
+								String members = rs.getString(3);
+								center.setMembers(Arrays.asList(members.split(",")));
+								center.setAdminName(rs.getString(4));
+								center.setAdminPhone(rs.getString(5));
+								center.setImage(rs.getBytes(6));
+								center.setAddress(rs.getString(7));
+								return center;
+							}
+							return null;
+						}
+					});
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return null;
+		}
+
+	}
 	
 //	
 //	

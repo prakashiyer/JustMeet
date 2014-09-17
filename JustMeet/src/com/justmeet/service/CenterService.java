@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.justmeet.dao.CenterDAO;
@@ -172,6 +173,21 @@ public class CenterService {
 				return new Center();
 	}
 
+	public CenterList fetchUserCenters(String phone) {
+		User user = userDao.fetchUser(phone);
+		List<String> centerIdList = user.getCenters();
+		String centerIds = StringUtils.collectionToCommaDelimitedString(centerIdList);
+		List<Center> centers = centerDao.fetchUserCenters(centerIds);
+		if (centers != null) {
+			log.info("Center List fetched successfully, Size is: " + centers.size());
+			CenterList centerList = new CenterList();
+			centerList.setCenters(centers);
+			return centerList;
+		} else {
+			log.error("Center List fetch failed ");
+			return new CenterList();
+		}
+	}
 
 	/*
 
