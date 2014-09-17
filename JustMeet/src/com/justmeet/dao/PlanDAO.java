@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.util.StringUtils;
 
 import com.justmeet.entities.Plan;
 import com.thoughtworks.xstream.XStream;
@@ -27,7 +28,7 @@ public class PlanDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
-	@SuppressWarnings("unchecked")
+	/*@SuppressWarnings("unchecked")
 	public List<Plan> fetchUpcomingGroupPlans(List<String> groupNames, List<String> groupIds) {
 
 		String findQuery = "SELECT * FROM theiyers_whatsThePlan.plans where (";
@@ -119,94 +120,92 @@ public class PlanDAO {
 			return null;
 		}
 
-	}
+	}*/
 	
-	@SuppressWarnings("unchecked")
-	public List<Plan> fetchUpcomingPlans(String phone) {
-
-		String findQuery = "SELECT * FROM theiyers_whatsThePlan.plans where (member_names like '%";
+	public List<Plan> fetchUpcomingPlans(List<String> userAndAdminsList) {
 		
-		Calendar calendar = Calendar.getInstance();
-		int month = calendar.get(Calendar.MONTH) + 1;
-		int date = calendar.get(Calendar.DATE);
-		int hour = calendar.get(Calendar.HOUR_OF_DAY);
-		int min = calendar.get(Calendar.MINUTE);
-		String strMon = String.valueOf(month);
-		if (month < 10) {
-			strMon = "0" + strMon;
-		}
-		String strdt = String.valueOf(date);
-		if (date < 10) {
-			strdt = "0" + strdt;
-		}
-		String strhr = String.valueOf(hour);
-		if (hour < 10) {
-			strhr = "0" + strhr;
-		}
-		String strMin = String.valueOf(min);
-		if (min < 10) {
-			strMin = "0" + strMin;
-		}
+		if(!userAndAdminsList.isEmpty()) {
+			String userAndAdmins = StringUtils.collectionToCommaDelimitedString(userAndAdminsList);
+			String findQuery = "SELECT * FROM theiyers_whatsThePlan.hm_plans where user_id in ("+userAndAdmins+") ";
+			
+			Calendar calendar = Calendar.getInstance();
+			int month = calendar.get(Calendar.MONTH) + 1;
+			int date = calendar.get(Calendar.DATE);
+			int hour = calendar.get(Calendar.HOUR_OF_DAY);
+			int min = calendar.get(Calendar.MINUTE);
+			String strMon = String.valueOf(month);
+			if (month < 10) {
+				strMon = "0" + strMon;
+			}
+			String strdt = String.valueOf(date);
+			if (date < 10) {
+				strdt = "0" + strdt;
+			}
+			String strhr = String.valueOf(hour);
+			if (hour < 10) {
+				strhr = "0" + strhr;
+			}
+			String strMin = String.valueOf(min);
+			if (min < 10) {
+				strMin = "0" + strMin;
+			}
 
-		String startTime = String.valueOf(calendar.get(Calendar.YEAR)) + "-"
-				+ strMon + "-" + strdt + " " + strhr + ":" + strMin + ":00";
-		log.warn("START TIME:" + startTime);
-		findQuery = findQuery + phone + "%' or members_invited like '%"+phone+"%') and start_time > '" + startTime
-				+ "' order by start_time asc";
-		try {
-			return jdbcTemplate.query(findQuery,
-					new ParameterizedRowMapper<Plan>() {
+			String startTime = String.valueOf(calendar.get(Calendar.YEAR)) + "-"
+					+ strMon + "-" + strdt + " " + strhr + ":" + strMin + ":00";
+			log.warn("START TIME:" + startTime);
+			findQuery = findQuery +" and start_time > '" + startTime
+					+ "' order by start_time asc";
+			try {
+				return jdbcTemplate.query(findQuery,
+						new ParameterizedRowMapper<Plan>() {
 
-						public Plan mapRow(ResultSet rs, int rowNum)
-								throws SQLException {
+							public Plan mapRow(ResultSet rs, int rowNum)
+									throws SQLException {
 
-							if (rs != null) {
-								Plan plan = new Plan();
-								plan.setId(rs.getInt(1));
-								plan.setName(rs.getString(2));
-								plan.setGroupName(rs.getString(3));
-								plan.setStartTime(rs.getTimestamp(4).toString());
-								plan.setLocation(rs.getString(5));
-								
-								// Create Members xml
-								XStream membersXs = new XStream();
-								membersXs.alias("Members", List.class);
-								membersXs.alias("Entry", String.class);
-								List<String> memberNames = (List<String>) membersXs
-										.fromXML(rs.getString(6));
-								plan.setMemberNames(memberNames);
-								plan.setCreator(rs.getString(7));
-								plan.setEndTime(rs.getString(8));
-								
-								// Create Groups xml
-								XStream groupsXs = new XStream();
-								groupsXs.alias("Groups", List.class);
-								groupsXs.alias("Entry", String.class);
-								List<String> groups = (List<String>) groupsXs
-										.fromXML(rs.getString(9));
-								plan.setGroupsInvited(groups);
-								
-								// Create Members Invited xml
-								XStream membersInvitedXs = new XStream();
-								membersInvitedXs.alias("MembersInvited", List.class);
-								membersInvitedXs.alias("Entry", String.class);
-								List<String> membersInvited = (List<String>) membersInvitedXs
-										.fromXML(rs.getString(10));
-								plan.setMembersInvited(membersInvited);
-								return plan;
+								if (rs != null) {
+									Plan plan = new Plan();
+									plan.setId(rs.getInt(1));
+									plan.setTitle(rs.getString(2));
+									plan.setEndTime(rs.getTimestamp(3).toString());
+									plan.setStartTime(rs.getTimestamp(4).toString());
+									plan.setUserId(rs.getInt(5));
+									plan.setUserRsvp(rs.getString(6));
+									plan.setDocId(rs.getInt(7));
+									plan.setDocRsvp(rs.getString(8));
+									plan.setCenterPlanFlag(rs.getString(9));
+									plan.setCenterId(rs.getString(10));
+									//TODO File code
+									plan.setPlanFile(rs.getString(11));
+									return plan;
+								}
+								return null;
 							}
-							return null;
-						}
-					});
+						});
 
-		} catch (Exception e) {
-			log.warn(e.getMessage());
+			} catch (Exception e) {
+				log.warn(e.getMessage());
+				return null;
+			}
+		} else {
 			return null;
 		}
+	}
+	
+	
+	public boolean updateRsvp(String planId, String planFileContent) {
+		String updateQuery = "UPDATE theiyers_whatsThePlan.hm_plans SET plan_file =? WHERE id=?";
+		//TODO File code
+		try {
+			jdbcTemplate.update(updateQuery, planFileContent, planId);
+			return true;
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return false;
 
+		}
 	}
 
-	public boolean addPlan(String name, String groupName, String startTime,
+	/*public boolean addPlan(String name, String groupName, String startTime,
 			String location, List<String> members, String creator, String endTime) {
 		String insertQuery = "INSERT INTO theiyers_whatsThePlan.plans (name, group_name, start_time, location, member_names, creator, end_time) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		// Create members xml
@@ -482,5 +481,5 @@ public class PlanDAO {
 			return 0;
 
 		}
-	}
+	}*/
 }

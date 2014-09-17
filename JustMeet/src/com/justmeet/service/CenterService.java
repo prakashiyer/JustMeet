@@ -16,10 +16,13 @@ import com.justmeet.dao.GroupDAO;
 import com.justmeet.dao.PlanDAO;
 import com.justmeet.dao.UserDAO;
 import com.justmeet.entities.Center;
+import com.justmeet.entities.CenterList;
 import com.justmeet.entities.Group;
 import com.justmeet.entities.GroupList;
 import com.justmeet.entities.Plan;
+import com.justmeet.entities.PlanList;
 import com.justmeet.entities.User;
+import com.justmeet.entities.UserList;
 
 public class CenterService {
 
@@ -81,25 +84,96 @@ public class CenterService {
 
 		return new Center();
 	}
-
-	/*public byte[] uploadGroupImage(String groupName, MultipartFile file, String groupIndex) {
+	
+	public byte[] uploadCenterImage(MultipartFile file, String id) {
 
 		try {
 			InputStream inputStream = file.getInputStream();
-			boolean success = groupDao.addGroupImage(groupName, groupIndex, inputStream);
+			boolean success = centerDao.addImage(id, inputStream);
 			if (success) {
-				InputStream image = groupDao.fetchGroupImage(groupName, groupIndex);
+				InputStream image = centerDao.fetchCenterImage(id);
 				if (image != null) {
 
 					return IOUtils.toByteArray(image);
 				}
 			}
 		} catch (IOException e) {
-			log.error("Image upload failed." + groupName);
+			log.error("Image upload failed, center id: "+id);
 		}
 
 		return null;
 	}
+	
+	public CenterList fetchCentersList(String phoneList) {
+		List<Center> centers = centerDao.fetchCentersList(phoneList);
+		if (centers != null) {
+			log.info("Center List fetched successfully, Size is: " + centers.size());
+			CenterList centerList = new CenterList();
+			centerList.setCenters(centers);;
+			return centerList;
+		} else {
+			log.error("Center List fetch failed ");
+			return new CenterList();
+		}
+	}
+	
+	public CenterList searchCenter(String name) {
+		List<Center> centers = centerDao.searchCenter(name);
+		if (centers != null) {
+			log.info("Center List fetched successfully, Size is: " + centers.size());
+			CenterList centerList = new CenterList();
+			centerList.setCenters(centers);;
+			return centerList;
+		} else {
+			log.error("Center List fetch failed ");
+			return new CenterList();
+		}
+		
+	}
+	
+	public Center joinCenter(String id, String phone) {
+		// Fetch current groups
+				User user = userDao.fetchUser(phone);
+				if (user != null) {
+
+					// Update Center with phone
+					Center center = centerDao.fetchCenter(id);
+
+					if (center != null) {
+						List<String> members = center.getMembers();
+						members.add(String.valueOf(user.getId()));
+						boolean updateSuccess = centerDao
+								.updateCenterWithUser(id, members);
+
+						if (updateSuccess) {
+							List<String> centers = user.getCenters();
+							centers.add(id);
+							userDao.updateUserWithCenter(phone,centers);
+							
+							//Fetch all plans for this center
+							String adminPhone = center.getAdminPhone();
+							List<String> userAndAdminsList = new ArrayList<String>();
+							userAndAdminsList.add(adminPhone);
+							List<Plan> planList = planDao.fetchUpcomingPlans(userAndAdminsList);
+							if(planList != null){
+								for(Plan plan: planList){
+									planDao.updateRsvp(String.valueOf(plan.getId()), plan.getPlanFile() + "," +phone+"|No");
+								}
+							}
+							
+							
+							// Return group info
+							return center;
+						}
+
+					}
+				}
+				
+				return new Center();
+	}
+
+
+	/*
 
 	public byte[] fetchGroupImage(String groupName, String groupIndex) {
 		try {
@@ -113,50 +187,11 @@ public class CenterService {
 		return null;
 	}
 	
-	public Group searchGroup(String groupName) {
-		Group group = groupDao.fetchGroupInformation(groupName);
-		if (group != null && groupName.equals(group.getName())) {
-			return group;
-		}
-		return new Group();
-	}
+	
 	
 	
 
-	public Group joinGroup(String groupName, String groupIndex, String phone) {
-		// Fetch current groups
-				User user = userDao.fetchUser(phone);
-				if (user != null) {
-
-					// Update Group with phone
-					Group group = groupDao.fetchGroup(groupIndex);
-
-					if (group != null) {
-						List<String> pendingMembers = group.getPendingMembers();
-						pendingMembers.add(phone);
-						boolean updateSuccess = groupDao
-								.updateGroupWithPendingMember(groupName, groupIndex, pendingMembers);
-
-						if (updateSuccess) {
-							List<String> pendingGroups = user.getPendingGroupNames();
-							List<String> pendingGroupIds = user.getPendingGroupIds();
-							// Add the new pending group to user table
-							pendingGroups.add(groupName);
-							pendingGroupIds.add(String.valueOf(groupIndex));
-							userDao.updateUserWithPendingGroupName(phone,
-									pendingGroups, pendingGroupIds);
-							
-							// Return group info
-							
-							return group;
-						}
-
-					}
-				}
-				
-				return new Group();
-	}
-
+	
 	public Group setAdminDecision(String groupName, String groupIndex,String phone,
 			 String decision) {
 		// Fetch current groups

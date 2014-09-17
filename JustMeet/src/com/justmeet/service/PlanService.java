@@ -30,11 +30,13 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 
 	public PlanList fetchUpcomingPlans(String phone) {
 		User user = userDao
-				.fetchUser(phone);
+				.fetchUser(phone);		
 		if (user != null) {
-			
-			log.info("Fetch Upcoming plans for groups");
-			List<Plan> plans = planDao.fetchUpcomingPlans(phone);
+			List<String> userAndAdminIds = new ArrayList<String>();
+			userAndAdminIds.add(String.valueOf(user.getId()));
+			userAndAdminIds.addAll(user.getCenters());
+			log.info("Fetch Upcoming plans for user");
+			List<Plan> plans = planDao.fetchUpcomingPlans(userAndAdminIds);
 			PlanList planList = new PlanList();
 			planList.setPlans(plans);
 			
@@ -46,7 +48,7 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 
 	}
 
-	public PlanList fetchGroupPlans(String groupName, String groupIndex) {
+	/*public PlanList fetchGroupPlans(String groupName, String groupIndex) {
 		List<String> groups = new ArrayList<String>();
 		groups.add(groupName);
 		List<String> groupIds = new ArrayList<String>();
@@ -240,6 +242,6 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 		}
 		
 		return new Plan();
-	}
+	}*/
 
 }

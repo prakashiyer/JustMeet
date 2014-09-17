@@ -132,30 +132,62 @@ public class UserDAO {
 
 	}
 	
+	public List<User> fetchDocList(String phoneList) {
+
+		String findQUery = "SELECT * FROM theiyers_whatsThePlan.hm_user where phone in ("
+				+ phoneList + ") and doc_flag='true'";
+		try {
+			return jdbcTemplate.query(findQUery,
+					new ParameterizedRowMapper<User>() {
+
+						public User mapRow(ResultSet rs, int rowNum)
+								throws SQLException {
+							if (rs != null) {
+								User user = new User();
+								user.setId(rs.getInt(1));
+								user.setName(rs.getString(2));
+								user.setPhone(rs.getString(3));
+								user.setPrimaryCenterId(rs.getInt(4));
+								user.setPrimaryDoctorId(rs.getInt(5));
+								String centers = rs.getString(6);
+								user.setCenters(Arrays.asList(centers.split(",")));
+								user.setImage(rs.getBytes(7));
+								user.setBloodGroup(rs.getString(8));
+								// TODO Fetch Date
+								SimpleDateFormat formatter = new SimpleDateFormat(
+										"MM-dd-yyyy");
+								user.setDob(formatter.format(rs.getDate(9)));
+								user.setSex(rs.getString(10));
+								user.setAddress(rs.getString(11));
+								user.setDoctorFlag(rs.getString(12));
+								return user;
+							}
+							return null;
+						}
+					});
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return null;
+		}
+
+	}
+	
+	
+	public boolean updateUserWithCenter(String phone, List<String> memberList) {
+		String updateQuery = "UPDATE theiyers_whatsThePlan.hm_user SET members =? WHERE phone=?";
+		String members = StringUtils.collectionToCommaDelimitedString(memberList);
+		try {
+			jdbcTemplate.update(updateQuery, members, phone);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
 	
 //	
 //
-//	public boolean updateUserWithGroupName(String phone, List<String> groups,
-//			List<String> groupIds) {
-//		String updateQuery = "UPDATE theiyers_whatsThePlan.user_informatiion SET groups =?, groups_ids=? WHERE phone=?";
-//		// Create groups xml
-//		XStream groupXs = new XStream();
-//		groupXs.alias("Groups", List.class);
-//		groupXs.alias("Entry", String.class);
-//		String groupXml = groupXs.toXML(groups);
-//
-//		// Create groups xml
-//		XStream groupIdsXs = new XStream();
-//		groupIdsXs.alias("GroupIds", List.class);
-//		groupIdsXs.alias("Entry", String.class);
-//		String groupIdsXml = groupIdsXs.toXML(groupIds);
-//		try {
-//			jdbcTemplate.update(updateQuery, groupXml, groupIdsXml, phone);
-//			return true;
-//		} catch (Exception e) {
-//			return false;
-//		}
-//	}
+//	
 //
 //	
 //
@@ -231,47 +263,5 @@ public class UserDAO {
 //		}
 //	}
 //
-//	@SuppressWarnings("unchecked")
-//	public List<User> fetchUserList(String phoneList) {
-//
-//		String findQUery = "SELECT * FROM theiyers_whatsThePlan.user_informatiion where phone in ("
-//				+ phoneList + ")";
-//		try {
-//			return jdbcTemplate.query(findQUery,
-//					new ParameterizedRowMapper<User>() {
-//
-//						public User mapRow(ResultSet rs, int rowNum)
-//								throws SQLException {
-//							if (rs != null) {
-//								User user = new User();
-//								user.setId(rs.getInt(1));
-//								user.setName(rs.getString(2));
-//								user.setPhone(rs.getString(3));
-//
-//								XStream groupXs = new XStream();
-//								groupXs.alias("Groups", List.class);
-//								groupXs.alias("Entry", String.class);
-//								List<String> groups = (List<String>) groupXs
-//										.fromXML(rs.getString(4));
-//								// user.setGroupNames(groups);
-//								XStream pendingGroupXs = new XStream();
-//								pendingGroupXs.alias("PendingGroups",
-//										List.class);
-//								pendingGroupXs.alias("Entry", String.class);
-//								List<String> pendingGroups = (List<String>) pendingGroupXs
-//										.fromXML(rs.getString(5));
-//								// user.setPendingGroupNames(pendingGroups);
-//								user.setImage(rs.getBytes(6));
-//
-//								return user;
-//							}
-//							return null;
-//						}
-//					});
-//		} catch (Exception e) {
-//			log.warn(e.getMessage());
-//			return null;
-//		}
-//
-//	}
+//	
 }

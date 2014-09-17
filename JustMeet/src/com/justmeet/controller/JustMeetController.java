@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.justmeet.entities.Center;
+import com.justmeet.entities.CenterList;
+import com.justmeet.entities.PlanList;
 import com.justmeet.entities.User;
+import com.justmeet.entities.UserList;
 import com.justmeet.service.CenterService;
 import com.justmeet.service.ExpenseService;
 import com.justmeet.service.GcmService;
@@ -97,11 +100,16 @@ public class JustMeetController {
 	public @ResponseBody
 	User fetchUser(@RequestParam(value = "phone") String phone) {
 		logger.info("Fetch User: " + phone);
-		return this.userService.fetchUser(phone);
+		return userService.fetchUser(phone);
 	}
 	
 	
-	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchExistingDoctors")
+	public @ResponseBody
+	UserList fetchExistingDoctors(
+			@RequestParam(value = "phoneList") String phoneList) {
+		return userService.fetchDoctorsList(phoneList);
+	}
 	
 	
 	
@@ -141,22 +149,55 @@ public class JustMeetController {
 		return centerService.editCenter(id, name, adminName, adminPhone, address, members);
 	}
 	
+	@RequestMapping(method = RequestMethod.POST, value = "/uploadCenterImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
+	public @ResponseBody
+	byte[] uploadCenterImage(
+			@RequestParam(value = "image") MultipartFile file,
+			@RequestParam(value = "id") String id) {
+		logger.info("Image upload started.");
+		return centerService.uploadCenterImage(file, id);
+	}
 	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchExistingCenters")
+	public @ResponseBody
+	CenterList fetchExistingCenters(
+			@RequestParam(value = "centerList") String centerList) {
+		return centerService.fetchCentersList(centerList);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/searchCenter")
+	public @ResponseBody
+	CenterList searchGroup(@RequestParam(value = "name") String name) {
+		logger.info("center search begin: " + name);
+		return centerService.searchCenter(name.replace("%20", " "));
+	}
+	
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/joinCenter")
+	public @ResponseBody
+	Center joinCenter(@RequestParam(value = "id") String id,
+			@RequestParam(value = "phone") String phone) {
+		return centerService.joinCenter(id, phone);
+
+	}
+	
+	
+	//************************************** APPOINTMENTS ***********************************************
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchUpcomingPlans")
+	public @ResponseBody
+	PlanList fetchUpcomingPlans(@RequestParam(value = "phone") String phone) {
+		logger.info("Fetch Upcoming plans for " + phone);
+		return planService.fetchUpcomingPlans(phone);
+
+	}
 	
 	
 	
 	
 //	
 //	
-//	@RequestMapping(method = RequestMethod.POST, value = "/uploadGroupImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
-//	public @ResponseBody
-//	byte[] uploadGroupImage(
-//			@RequestParam(value = "groupName") String groupName,
-//			@RequestParam(value = "image") MultipartFile file,
-//			@RequestParam(value = "groupIndex") String groupIndex) {
-//		logger.info("Image upload started.");
-//		return groupService.uploadGroupImage(groupName, file, groupIndex);
-//	}
+//	
 //
 //	
 //	
@@ -188,12 +229,7 @@ public class JustMeetController {
 //		return groupService.fetchGroupImage(groupName, groupIndex);
 //	}
 //
-//	@RequestMapping(method = RequestMethod.GET, value = "/searchGroup")
-//	public @ResponseBody
-//	Group searchGroup(@RequestParam(value = "groupName") String groupName) {
-//		logger.info("Group search begin: " + groupName);
-//		return groupService.searchGroup(groupName.replace("%20", " "));
-//	}
+//	
 //
 //	@RequestMapping(method = RequestMethod.GET, value = "/fetchGroupPlans")
 //	public @ResponseBody
@@ -294,14 +330,7 @@ public class JustMeetController {
 //		return planService.fetchPlanHistory(groupName, groupIndex);
 //	}
 //
-//	@RequestMapping(method = RequestMethod.GET, value = "/joinGroup")
-//	public @ResponseBody
-//	Group joinGroup(@RequestParam(value = "groupName") String groupName,
-//			@RequestParam(value = "groupIndex") String groupIndex,
-//			@RequestParam(value = "phone") String phone) {
-//		return groupService.joinGroup(groupName, groupIndex, phone);
-//
-//	}
+//	
 //
 //	@RequestMapping(method = RequestMethod.GET, value = "/setAdminDecisionForUser")
 //	public @ResponseBody
@@ -442,12 +471,7 @@ public class JustMeetController {
 //		return expenseService.generateReport(planName, planIndex, groupIndex);
 //	}
 //
-//	@RequestMapping(method = RequestMethod.GET, value = "/fetchExistingUsers")
-//	public @ResponseBody
-//	UserList fetchExistingUsers(
-//			@RequestParam(value = "phoneList") String phoneList) {
-//		return userService.fetchUserList(phoneList);
-//	}
+//	
 //
 //	@RequestMapping(method = RequestMethod.GET, value = "/fetchGroupUsers")
 //	public @ResponseBody

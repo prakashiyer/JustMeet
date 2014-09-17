@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,9 +17,11 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.util.StringUtils;
 
 import com.justmeet.entities.Center;
 import com.justmeet.entities.Group;
+import com.justmeet.entities.User;
 import com.thoughtworks.xstream.XStream;
 
 public class CenterDAO {
@@ -111,30 +114,106 @@ public class CenterDAO {
 		}
 	}
 	
+    public InputStream fetchCenterImage(String id) {
+		String findQUery = "SELECT * FROM theiyers_whatsThePlan.hm_centers where id=?";
+		try {
+			return jdbcTemplate.queryForObject(findQUery,
+					new ParameterizedRowMapper<InputStream>() {
+
+						public InputStream mapRow(ResultSet rs, int rowNum)
+								throws SQLException {
+							if (rs != null) {
+								return rs.getBinaryStream(6);
+							}
+							return null;
+						}
+					}, id);
+
+		} catch (Exception e) {
+			return null;
+		}
+	}
 	
-	
-	
+    public List<Center> fetchCentersList(String phoneList) {
+
+		String findQUery = "SELECT * FROM theiyers_whatsThePlan.hm_centers where admin_phone in ("
+				+ phoneList + ")";
+		try {
+			return jdbcTemplate.query(findQUery,
+					new ParameterizedRowMapper<Center>() {
+
+						public Center mapRow(ResultSet rs, int rowNum)
+								throws SQLException {
+							if (rs != null) {
+								Center center = new Center();
+								center.setId(rs.getInt(1));
+								center.setName(rs.getString(2));
+								String members = rs.getString(3);
+								center.setMembers(Arrays.asList(members.split(",")));
+								center.setAdminName(rs.getString(4));
+								center.setAdminPhone(rs.getString(5));
+								center.setImage(rs.getBytes(6));
+								center.setAddress(rs.getString(7));
+								return center;
+							}
+							return null;
+						}
+					});
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return null;
+		}
+
+	}
+    
+    public List<Center> searchCenter(String name) {
+
+		String findQUery = "SELECT * FROM theiyers_whatsThePlan.hm_centers where name like '%"
+				+ name + "%'";
+		try {
+			return jdbcTemplate.query(findQUery,
+					new ParameterizedRowMapper<Center>() {
+
+						public Center mapRow(ResultSet rs, int rowNum)
+								throws SQLException {
+							if (rs != null) {
+								Center center = new Center();
+								center.setId(rs.getInt(1));
+								center.setName(rs.getString(2));
+								String members = rs.getString(3);
+								center.setMembers(Arrays.asList(members.split(",")));
+								center.setAdminName(rs.getString(4));
+								center.setAdminPhone(rs.getString(5));
+								center.setImage(rs.getBytes(6));
+								center.setAddress(rs.getString(7));
+								return center;
+							}
+							return null;
+						}
+					});
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return null;
+		}
+
+	}
+    
+    public boolean updateCenterWithUser(String id,
+			List<String> memberList) {
+    	String members = StringUtils.collectionToCommaDelimitedString(memberList);
+		String updateQuery = "UPDATE theiyers_whatsThePlan.hm_centers SET members_file =? WHERE id=?";
+		//TODO Add file code
+		try {
+			jdbcTemplate.update(updateQuery, members, id);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+
+	}
 	
 //	
-//	public InputStream fetchGroupImage(String groupName, String groupIndex) {
-//		String findQUery = "SELECT * FROM theiyers_whatsThePlan.groups where name = ? and id=?";
-//		try {
-//			return jdbcTemplate.queryForObject(findQUery,
-//					new ParameterizedRowMapper<InputStream>() {
-//
-//						public InputStream mapRow(ResultSet rs, int rowNum)
-//								throws SQLException {
-//							if (rs != null) {
-//								return rs.getBinaryStream(5);
-//							}
-//							return null;
-//						}
-//					}, groupName, groupIndex);
-//
-//		} catch (Exception e) {
-//			return null;
-//		}
-//	}
+//	
 //	
 //	@SuppressWarnings("unchecked")
 //	public Group fetchGroupInformation(String groupName) {
@@ -209,22 +288,7 @@ public class CenterDAO {
 //
 //	}
 //
-//	public boolean updateGroupWithPendingMember(String groupName, String groupIndex,
-//			List<String> pendingMembers) {
-//		String updateQuery = "UPDATE theiyers_whatsThePlan.groups SET pending_members =? WHERE name=? and id=?";
-//		// Create pending Ids xml
-//		XStream pendingMembersXs = new XStream();
-//		pendingMembersXs.alias("PendingMembers", List.class);
-//		pendingMembersXs.alias("Entry", String.class);
-//		String pendingMembersXml = pendingMembersXs.toXML(pendingMembers);
-//		try {
-//			jdbcTemplate.update(updateQuery, pendingMembersXml, groupName, groupIndex);
-//			return true;
-//		} catch (Exception e) {
-//			return false;
-//		}
-//
-//	}
+//	
 //
 //	public boolean updateGroupWithAdminDecision(String groupName, String groupIndex,
 //			List<String> members, List<String> pendingMembers) {

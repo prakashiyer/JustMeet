@@ -70,7 +70,7 @@ public class ExpenseService {
 	}
 
 	public ExpenseReport generateReport(String planName, String planIndex, String groupIndex) {
-		Plan plan = planDao.fetchPlanInformation(planName, planIndex);
+		/*Plan plan = planDao.fetchPlanInformation(planName, planIndex);
 		ExpenseReport report = new ExpenseReport();
 		List<ExpenseRow> expenseRows = new ArrayList<ExpenseRow>();
 		if (plan != null) {
@@ -122,9 +122,9 @@ public class ExpenseService {
 			}
 
 		}
-		report.setExpenseRows(expenseRows);
+		report.setExpenseRows(expenseRows);*/
 		
-		return report;
+		return null;
 	}
 
 }
