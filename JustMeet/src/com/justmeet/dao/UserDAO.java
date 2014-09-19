@@ -62,9 +62,15 @@ public class UserDAO {
 								user.setImage(rs.getBytes(7));
 								user.setBloodGroup(rs.getString(8));
 								// TODO Fetch Date
-								SimpleDateFormat formatter = new SimpleDateFormat(
-										"MM-dd-yyyy");
-								user.setDob(formatter.format(rs.getDate(9)));
+								java.sql.Date dbSqlDate = rs.getDate(9);
+								
+								if(dbSqlDate != null){
+									Date date = new Date(dbSqlDate.getTime());
+									SimpleDateFormat formatter = new SimpleDateFormat(
+											"MM-dd-yyyy");
+									user.setDob(formatter.format(date));
+								}
+								
 								user.setSex(rs.getString(10));
 								user.setAddress(rs.getString(11));
 								user.setDoctorFlag(rs.getString(12));
@@ -75,7 +81,7 @@ public class UserDAO {
 						}
 					}, phone);
 		} catch (Exception e) {
-			log.warn(e.getMessage());
+			e.printStackTrace();
 			return null;
 		}
 

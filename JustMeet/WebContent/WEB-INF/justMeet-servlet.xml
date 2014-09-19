@@ -84,7 +84,7 @@
     <bean id="gcmDao" class="com.justmeet.dao.GcmDAO" />
 	<bean id="userDao" class="com.justmeet.dao.UserDAO" />
 	<bean id="groupDao" class="com.justmeet.dao.GroupDAO" />
-	<bean id="centerDao" class="com.justmeet.dao.centerDAO" />
+	<bean id="centerDao" class="com.justmeet.dao.CenterDAO" />
 	<bean id="planDao" class="com.justmeet.dao.PlanDAO" />
 
 	<!-- Thread pool definition for tasks to be executed asynchronously. -->

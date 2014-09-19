@@ -3,10 +3,10 @@
 	xmlns="http://java.sun.com/xml/ns/javaee"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	id="WebApp_ID" version="3.0">
-	<display-name>HealthMeet</display-name>
+	<display-name>JustMeet</display-name>
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>/WEB-INF/healthMeet-servlet.xml</param-value>
+		<param-value>/WEB-INF/justMeet-servlet.xml</param-value>
 	</context-param>
 
 
@@ -27,13 +27,13 @@
 		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
 	</listener>
 	<servlet>
-		<servlet-name>healthMeet</servlet-name>
+		<servlet-name>justMeet</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
 	<servlet-mapping>
-		<servlet-name>healthMeet</servlet-name>
+		<servlet-name>justMeet</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 </web-app>
