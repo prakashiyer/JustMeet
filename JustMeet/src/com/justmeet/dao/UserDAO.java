@@ -30,7 +30,7 @@ public class UserDAO {
 			Date dobDate, String sex, String address, String doctorFlag,
 			String primaryCenterId, String primaryDoctorId, String centers) {
 		
-		String insertQuery = "INSERT INTO theiyers_whatsThePlan.hm_user (name, phone, blood_group, dob, sex, doc_flag, primary_center_id, primary_doctor_id, centers) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+		String insertQuery = "INSERT INTO theiyers_whatsThePlan.hm_user (name, phone, blood_group, dob, sex, address, doc_flag, primary_center_id, primary_doctor_id, centers) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		try {
 			jdbcTemplate.update(insertQuery, name, phone, bloodGroup,
 					dobDate, sex, address, doctorFlag, primaryCenterId, primaryDoctorId, centers);
@@ -67,7 +67,7 @@ public class UserDAO {
 								if(dbSqlDate != null){
 									Date date = new Date(dbSqlDate.getTime());
 									SimpleDateFormat formatter = new SimpleDateFormat(
-											"MM-dd-yyyy");
+											"yyyy-MM-dd");
 									user.setDob(formatter.format(date));
 								}
 								
@@ -90,12 +90,12 @@ public class UserDAO {
 	
 	public boolean editUser(String name, String phone, String bloodGroup,
 			Date dobDate, String sex, String address, String doctorFlag,
-			String primaryCenterId, String primaryDoctorId, String centers) {
-		String updateQuery = "UPDATE theiyers_whatsThePlan.hm_user SET name=?, blood_group=?, dob=?, sex=?, doc_flag=?, primary_center_id=?, primary_doctor_id=?, centers=? WHERE phone=?";
+			String primaryCenterId, String primaryDoctorId) {
+		String updateQuery = "UPDATE theiyers_whatsThePlan.hm_user SET name=?, blood_group=?, dob=?, sex=?, address=?, doc_flag=?, primary_center_id=?, primary_doctor_id=? WHERE phone=?";
 		
 		try {
 			jdbcTemplate.update(updateQuery, name, bloodGroup,
-					dobDate, sex, address, doctorFlag, primaryCenterId, primaryDoctorId, centers, phone);
+					dobDate, sex, address, doctorFlag, primaryCenterId, primaryDoctorId, phone);
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -141,7 +141,7 @@ public class UserDAO {
 	public List<User> fetchDocList(String phoneList) {
 
 		String findQUery = "SELECT * FROM theiyers_whatsThePlan.hm_user where phone in ("
-				+ phoneList + ") and doc_flag='true'";
+				+ phoneList + ") and doc_flag='Y'";
 		try {
 			return jdbcTemplate.query(findQUery,
 					new ParameterizedRowMapper<User>() {
@@ -160,9 +160,59 @@ public class UserDAO {
 								user.setImage(rs.getBytes(7));
 								user.setBloodGroup(rs.getString(8));
 								// TODO Fetch Date
-								SimpleDateFormat formatter = new SimpleDateFormat(
-										"MM-dd-yyyy");
-								user.setDob(formatter.format(rs.getDate(9)));
+                                java.sql.Date dbSqlDate = rs.getDate(9);
+								
+								if(dbSqlDate != null){
+									Date date = new Date(dbSqlDate.getTime());
+									SimpleDateFormat formatter = new SimpleDateFormat(
+											"yyyy-MM-dd");
+									user.setDob(formatter.format(date));
+								}
+								user.setSex(rs.getString(10));
+								user.setAddress(rs.getString(11));
+								user.setDoctorFlag(rs.getString(12));
+								return user;
+							}
+							return null;
+						}
+					});
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return null;
+		}
+
+	}
+	
+	public List<User> searchDoctors(String name) {
+
+		String findQUery = "SELECT * FROM theiyers_whatsThePlan.hm_user where name like '%"
+				+ name + "%' and doc_flag='Y'";
+		try {
+			return jdbcTemplate.query(findQUery,
+					new ParameterizedRowMapper<User>() {
+
+						public User mapRow(ResultSet rs, int rowNum)
+								throws SQLException {
+							if (rs != null) {
+								User user = new User();
+								user.setId(rs.getInt(1));
+								user.setName(rs.getString(2));
+								user.setPhone(rs.getString(3));
+								user.setPrimaryCenterId(rs.getInt(4));
+								user.setPrimaryDoctorId(rs.getInt(5));
+								String centers = rs.getString(6);
+								user.setCenters(Arrays.asList(centers.split(",")));
+								user.setImage(rs.getBytes(7));
+								user.setBloodGroup(rs.getString(8));
+								// TODO Fetch Date
+                                java.sql.Date dbSqlDate = rs.getDate(9);
+								
+								if(dbSqlDate != null){
+									Date date = new Date(dbSqlDate.getTime());
+									SimpleDateFormat formatter = new SimpleDateFormat(
+											"yyyy-MM-dd");
+									user.setDob(formatter.format(date));
+								}
 								user.setSex(rs.getString(10));
 								user.setAddress(rs.getString(11));
 								user.setDoctorFlag(rs.getString(12));

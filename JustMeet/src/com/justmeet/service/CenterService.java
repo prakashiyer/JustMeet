@@ -72,11 +72,11 @@ public class CenterService {
 	}
 	
 	
-	public Center editCenter(String id, String centerName, String adminName, String adminPhone, String address, String members) {
+	public Center editCenter(String id, String centerName, String adminName, String adminPhone, String address) {
 
 		
 		log.warn("Inputs: " + centerName + "/" + adminPhone);
-		boolean success = centerDao.editCenter(id, centerName, adminName, adminPhone, address, members);
+		boolean success = centerDao.editCenter(id, centerName, adminName, adminPhone, address);
 
 		if (success){
 			// Fetch current groups
@@ -141,13 +141,21 @@ public class CenterService {
 					Center center = centerDao.fetchCenter(id);
 
 					if (center != null) {
-						List<String> members = center.getMembers();
+						List<String> members = new ArrayList<String>();
+						List<String> centerMembers = center.getMembers();
+						if(centerMembers != null){
+							members.addAll(centerMembers);
+						}
 						members.add(String.valueOf(user.getId()));
 						boolean updateSuccess = centerDao
 								.updateCenterWithUser(id, members);
 
 						if (updateSuccess) {
-							List<String> centers = user.getCenters();
+							List<String> centers = new ArrayList<String>();
+							List<String> userCenters = user.getCenters();
+							if(userCenters != null){
+								centers.addAll(userCenters);
+							}
 							centers.add(id);
 							userDao.updateUserWithCenter(phone,centers);
 							

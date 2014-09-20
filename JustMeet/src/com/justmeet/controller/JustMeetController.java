@@ -89,11 +89,10 @@ public class JustMeetController {
 			@RequestParam(value = "address") String address,
 			@RequestParam(value = "doctorFlag") String doctorFlag,
 			@RequestParam(value = "primaryCenterId") String primaryCenterId,
-			@RequestParam(value = "primaryDoctorId") String primaryDoctorId,
-			@RequestParam(value = "centers") String centers) {
+			@RequestParam(value = "primaryDoctorId") String primaryDoctorId) {
 		logger.info("Edit User addition: " + phone + "/" + name);
 		return userService.editUser(name, phone, bloodGroup, dob, sex, address,
-				doctorFlag, primaryCenterId, primaryDoctorId, centers);
+				doctorFlag, primaryCenterId, primaryDoctorId);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchUser")
@@ -109,6 +108,13 @@ public class JustMeetController {
 	UserList fetchExistingDoctors(
 			@RequestParam(value = "phoneList") String phoneList) {
 		return userService.fetchDoctorsList(phoneList);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/searchDoctors")
+	public @ResponseBody
+	UserList searchDoctors(
+			@RequestParam(value = "name") String name) {
+		return userService.searchDoctors(name.replace("%20", " "));
 	}
 	
 	
@@ -143,10 +149,9 @@ public class JustMeetController {
 			@RequestParam(value = "name") String name,
 			@RequestParam(value = "adminName") String adminName,
 			@RequestParam(value = "adminPhone") String adminPhone,
-			@RequestParam(value = "address") String address,
-			@RequestParam(value = "members") String members) {
+			@RequestParam(value = "address") String address) {
 		logger.info("Add Center: " + adminPhone + "/" + name);
-		return centerService.editCenter(id, name, adminName, adminPhone, address, members);
+		return centerService.editCenter(id, name, adminName, adminPhone, address);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/uploadCenterImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -167,7 +172,7 @@ public class JustMeetController {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/searchCenter")
 	public @ResponseBody
-	CenterList searchGroup(@RequestParam(value = "name") String name) {
+	CenterList searchCenter(@RequestParam(value = "name") String name) {
 		logger.info("center search begin: " + name);
 		return centerService.searchCenter(name.replace("%20", " "));
 	}

@@ -35,7 +35,7 @@ public class UserService {
 	public User addUser(String name, String phone, String bloodGroup,
 			String dob, String sex, String address, String doctorFlag,
 			String primaryCenterId, String primaryDoctorId, String centers) {
-		SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		Date dobDate = new Date();
 		try {
 			dobDate = formatter.parse(dob);
@@ -84,8 +84,8 @@ public class UserService {
 	
 	public User editUser(String name, String phone, String bloodGroup,
 			String dob, String sex, String address, String doctorFlag,
-			String primaryCenterId, String primaryDoctorId, String centers) {
-		SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+			String primaryCenterId, String primaryDoctorId) {
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		Date dobDate = new Date();
 		try {
 			dobDate = formatter.parse(dob);
@@ -94,7 +94,7 @@ public class UserService {
 		}
 
 		userDao.editUser(name, phone, bloodGroup, dobDate, sex, address,
-				doctorFlag, primaryCenterId, primaryDoctorId, centers);
+				doctorFlag, primaryCenterId, primaryDoctorId);
 		User user = userDao.fetchUser(phone);
 		if (user != null) {
 			log.info("User added successfully: " + phone + "/" + name);
@@ -106,6 +106,19 @@ public class UserService {
 	
 	public UserList fetchDoctorsList(String phoneList) {
 		List<User> users = userDao.fetchDocList(phoneList);
+		if (users != null) {
+			log.info("User List fetched successfully, Size is: " + users.size());
+			UserList userList = new UserList();
+			userList.setUsers(users);
+			return userList;
+		} else {
+			log.error("User List fetch failed ");
+			return new UserList();
+		}
+	}
+	
+	public UserList searchDoctors(String name) {
+		List<User> users = userDao.searchDoctors(name);
 		if (users != null) {
 			log.info("User List fetched successfully, Size is: " + users.size());
 			UserList userList = new UserList();

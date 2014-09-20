@@ -76,7 +76,9 @@ public class CenterDAO {
 								center.setId(rs.getInt(1));
 								center.setName(rs.getString(2));
 								String members = rs.getString(3);
-								center.setMembers(Arrays.asList(members.split(",")));
+								if(members != null){
+									center.setMembers(Arrays.asList(members.split(",")));
+								}								
 								center.setAdminName(rs.getString(4));
 								center.setAdminPhone(rs.getString(5));
 								center.setImage(rs.getBytes(6));
@@ -102,11 +104,11 @@ public class CenterDAO {
 		}
 	}
 
-    public boolean editCenter(String id, String centerName, String adminName, String adminPhone, String address, String members) {
+    public boolean editCenter(String id, String centerName, String adminName, String adminPhone, String address) {
 		
-    	String updateQuery = "UPDATE theiyers_whatsThePlan.hm_centers SET name=?, members_file=?, admin_name=?, admin_phone=?, address=? WHERE id=?";
+    	String updateQuery = "UPDATE theiyers_whatsThePlan.hm_centers SET name=?, admin_name=?, admin_phone=?, address=? WHERE id=?";
 		try {
-			jdbcTemplate.update(updateQuery, centerName, members, adminName, adminPhone, address, id);
+			jdbcTemplate.update(updateQuery, centerName, adminName, adminPhone, address, id);
 			return true;
 		} catch (Exception e) {
 			log.warn(e.getMessage());
@@ -149,7 +151,9 @@ public class CenterDAO {
 								center.setId(rs.getInt(1));
 								center.setName(rs.getString(2));
 								String members = rs.getString(3);
-								center.setMembers(Arrays.asList(members.split(",")));
+								if(members != null){
+									center.setMembers(Arrays.asList(members.split(",")));
+								}
 								center.setAdminName(rs.getString(4));
 								center.setAdminPhone(rs.getString(5));
 								center.setImage(rs.getBytes(6));
@@ -181,7 +185,9 @@ public class CenterDAO {
 								center.setId(rs.getInt(1));
 								center.setName(rs.getString(2));
 								String members = rs.getString(3);
-								center.setMembers(Arrays.asList(members.split(",")));
+								if(members != null){
+									center.setMembers(Arrays.asList(members.split(",")));
+								}
 								center.setAdminName(rs.getString(4));
 								center.setAdminPhone(rs.getString(5));
 								center.setImage(rs.getBytes(6));
@@ -227,7 +233,9 @@ public class CenterDAO {
 								center.setId(rs.getInt(1));
 								center.setName(rs.getString(2));
 								String members = rs.getString(3);
-								center.setMembers(Arrays.asList(members.split(",")));
+								if(members != null){
+									center.setMembers(Arrays.asList(members.split(",")));
+								}
 								center.setAdminName(rs.getString(4));
 								center.setAdminPhone(rs.getString(5));
 								center.setImage(rs.getBytes(6));
