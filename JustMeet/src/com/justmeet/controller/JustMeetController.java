@@ -1,9 +1,13 @@
 package com.justmeet.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.justmeet.entities.Center;
 import com.justmeet.entities.CenterList;
+import com.justmeet.entities.Plan;
 import com.justmeet.entities.PlanList;
 import com.justmeet.entities.User;
 import com.justmeet.entities.UserList;
@@ -119,9 +124,6 @@ public class JustMeetController {
 	
 	
 	
-	
-	
-	
 	//*****************CENTERS***************************************
 
 	@RequestMapping(method = RequestMethod.POST, value = "/addCenter", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -134,6 +136,17 @@ public class JustMeetController {
 			@RequestParam(value = "image") MultipartFile file) {
 		logger.info("Add Center: " + adminPhone + "/" + name);
 		return centerService.addCenter(name, adminName, adminPhone, address, members, file);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/updateCenter")
+	public @ResponseBody
+	Center updateCenter(@RequestParam(value = "id") String id,
+			@RequestParam(value = "name") String name,
+			@RequestParam(value = "adminName") String adminName,
+			@RequestParam(value = "adminPhone") String adminPhone,
+			@RequestParam(value = "address") String address) {
+		logger.info("Update Center: " + adminPhone + "/" + name);
+		return centerService.updateCenter(id, name, adminName, adminPhone, address);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchCenter")
@@ -186,11 +199,33 @@ public class JustMeetController {
 
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, value = "/leaveCenter")
+	public @ResponseBody
+	void leaveCenter(@RequestParam(value = "phone") String phone,
+			@RequestParam(value = "id") String id) {
+		logger.info("Leave Center: " + phone + "/" + id);
+		centerService.leaveCenter(id, phone);
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchUserCenters")
 	public @ResponseBody
 	CenterList fetchUserCenters(
 			@RequestParam(value = "phone") String phone) {
 		return centerService.fetchUserCenters(phone);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchCenterForAdmin")
+	public @ResponseBody
+	Center fetchCenterForAdmin(
+			@RequestParam(value = "phone") String phone) {
+		return centerService.fetchCenterForAdmin(phone);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/deleteCenter")
+	public @ResponseBody
+	void deleteCenter(@RequestParam(value = "id") String id) {
+		logger.info("Delete Center: " + id);
+		centerService.deleteCenter(id);
 	}
 	
 	
@@ -204,6 +239,151 @@ public class JustMeetController {
 
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchPlan")
+	public @ResponseBody
+	Plan fetchPlan(@RequestParam(value = "id") String id) {
+		logger.info("Fetch plan for " + id);
+		return planService.fetchPlan(id);
+
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/newPlan")
+	public @ResponseBody
+	Plan newPlan(@RequestParam(value = "title") String title,
+			@RequestParam(value = "date") String planDate,
+			@RequestParam(value = "time") String planTime,
+			@RequestParam(value = "endDate") String endDate,
+			@RequestParam(value = "endTime") String endTime,
+			@RequestParam(value = "userPhone") String userPhone,
+			@RequestParam(value = "userRsvp") String userRsvp,
+			@RequestParam(value = "docPhone") String docPhone,
+			@RequestParam(value = "docRsvp") String docRsvp,
+			@RequestParam(value = "centerPlanFlag") String centerPlanFlag) {
+		logger.info("New Plan addition");
+		
+		List<String> gcmList = new ArrayList<String>();
+		String centerPlanFile = "";
+		String centerId ="";
+		if("Y".equals(centerPlanFlag)){
+			Center center = centerService.fetchCenterForAdmin(userPhone);
+			List<String> centerMembers = center.getMembers();
+			if(!centerMembers.isEmpty()){
+				gcmList.addAll(centerMembers);
+				centerPlanFile = StringUtils.collectionToDelimitedString(centerMembers, "|N,");
+			}
+			centerId = String.valueOf(center.getId());
+		}
+		if(!StringUtils.isEmpty(userPhone)){
+			gcmList.add(userPhone);
+		}
+		if(!StringUtils.isEmpty(docPhone)){
+			gcmList.add(docPhone);
+		}
+		
+		Plan plan = planService.newPlan(title, planDate, planTime,
+				userPhone, userRsvp, docPhone, docRsvp, centerPlanFlag, endDate, endTime, centerId, centerPlanFile);
+		if (plan != null) {
+
+			gcmService.broadcast("Health Meet",
+					"A new plan has been added '" + title + "'", gcmList);
+			logger.info("Plan created : " + title);
+			return plan;
+		}
+		logger.info("Plan creation failed");
+		return new Plan();
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/editPlan")
+	public @ResponseBody
+	Plan editPlan(@RequestParam(value = "id") String id,
+			@RequestParam(value = "phone") String phone,
+			@RequestParam(value = "title") String title,
+			@RequestParam(value = "date") String planDate,
+			@RequestParam(value = "time") String planTime,
+			@RequestParam(value = "endDate") String endDate,
+			@RequestParam(value = "endTime") String endTime,
+			@RequestParam(value = "centerPlanFlag") String centerFlag,
+			@RequestParam(value = "cancelFlag") String cancelFlag) {
+		logger.info("Edit Plan Plan: "+id);
+		
+		List<String> gcmList = new ArrayList<String>();
+		Plan plan = planService.fetchPlan(id);
+		if("Y".equals(centerFlag)){
+			Center center = centerService.fetchCenterForAdmin(phone);
+			List<String> centerMembers = center.getMembers();
+			if(!centerMembers.isEmpty()){
+				gcmList.addAll(centerMembers);
+			}
+			if("Y".equals(cancelFlag)){
+				gcmService.broadcast("Health Meet",
+						"Plan '" + title + "' has been cancelled", gcmList);
+				planService.deletePlan(id);
+				return plan;
+			} else {
+				gcmService.broadcast("Health Meet",
+						"Plan '" + title + "' has been edited", gcmList);
+				return planService.editPlan(id, title, planDate, planTime, endDate, endTime);
+			}
+			
+		} else {
+			gcmList.add(plan.getUserPhone());
+			gcmList.add(plan.getDocPhone());
+			if("Y".equals(cancelFlag)){
+				gcmService.broadcast("Health Meet",
+						"Plan '" + title + "' has been cancelled", gcmList);
+				planService.deletePlan(id);
+				return plan;
+			} else {
+				gcmService.broadcast("Health Meet",
+						"Plan '" + title + "' has been edited", gcmList);
+				return planService.editPlan(id, title, planDate, planTime, endDate, endTime);
+			}
+		}
+	}
+	
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/rsvpPlan")
+	public @ResponseBody
+	Plan rsvpPlan(@RequestParam(value = "id") String id,
+			@RequestParam(value = "phone") String phone,
+			@RequestParam(value = "rsvp") String rsvp,
+			@RequestParam(value = "centerPlanFlag") String centerFlag,
+			@RequestParam(value = "docFlag") String docFlag) {
+		Plan plan = planService.fetchPlan(id);
+		User user = userService.fetchUser(phone);
+		String userName = user.getName();
+		List<String> gcmList = new ArrayList<String>();
+		if("Y".equals(centerFlag)){
+			String memberRsvp = phone+"|"+rsvp;
+			String allMembersRsvps = plan.getPlanFile();
+			gcmList.add(plan.getUserPhone());
+			gcmList.add(phone);
+			if("Y".equals(rsvp)) {
+				gcmService.broadcast("Health Meet", "Member "+userName+" has accepted appointment titled: "+plan.getTitle(), gcmList);
+				allMembersRsvps = allMembersRsvps.replace(phone+"|N", memberRsvp);
+			} else if("N".equals(rsvp)) {
+				gcmService.broadcast("Health Meet", "Member "+userName+" has declined appointment titled: "+plan.getTitle(), gcmList);
+				allMembersRsvps = allMembersRsvps.replace(phone+"|Y", memberRsvp);
+			}
+			return planService.updateRsvp(id, plan.getUserRsvp(), plan.getDocRsvp(), allMembersRsvps);
+		} else if ("Y".equals(docFlag)){
+			gcmList.add(plan.getUserPhone());
+			gcmList.add(plan.getDocPhone());
+			if("Y".equals(rsvp)) {
+				gcmService.broadcast("Health Meet", "Doctor "+userName+" has accepted appointment titled: "+plan.getTitle(), gcmList);
+			} else {
+				gcmService.broadcast("Health Meet", "Doctor "+userName+" has declined appointment titled: "+plan.getTitle(), gcmList);
+			}
+			return planService.updateRsvp(id, plan.getUserRsvp(), rsvp, plan.getPlanFile());
+		} else {
+			if("Y".equals(rsvp)) {
+				gcmService.broadcast("Health Meet", userName+" has accepted appointment titled: "+plan.getTitle(), gcmList);
+			} else {
+				gcmService.broadcast("Health Meet", userName+" has declined appointment titled: "+plan.getTitle(), gcmList);
+			}
+			return planService.updateRsvp(id, rsvp, plan.getDocRsvp(), plan.getPlanFile());
+		}
+	}
 	
 	
 	
@@ -289,35 +469,7 @@ public class JustMeetController {
 //		return planService.fetchPlan(planName, planIndex);
 //	}
 //
-//	@RequestMapping(method = RequestMethod.GET, value = "/rsvpPlan")
-//	public @ResponseBody
-//	Plan rsvpPlan(@RequestParam(value = "phone") String phone,
-//			@RequestParam(value = "planName") String planName,
-//			@RequestParam(value = "planIndex") String planIndex,
-//			@RequestParam(value = "planIndex") String groupIndex,
-//			@RequestParam(value = "rsvp") String rsvp) {
-//		Plan plan = planService.fetchPlan(planName, planIndex);
-//		String phoneName = null;
-//		User user = new User();
-//		user = this.userService.fetchUser(phone);
-//		phoneName = user.getName();
-//		logger.info("phoneName : " + phoneName);
-//		if (rsvp.equals("yes")) {
-//			gcmService.broadcast("Just Meet", phoneName + " is attending '"
-//					+ planName + "'", plan.getMemberNames());
-//		} else if (rsvp.equals("no") && plan.getMemberNames().size() == 1) {
-//			logger.info("only one member in plan.. deleting...");
-//			gcmService.broadcast("Just Meet", phoneName + " is not attending '"
-//					+ planName + "'" + "and the plan is deleted",
-//					plan.getMemberNames());
-//		} else if (rsvp.equals("no")) {
-//			gcmService.broadcast("Just Meet", phoneName + " is not attending '"
-//					+ planName + "'", plan.getMemberNames());
-//		}
-//		logger.info("Plan RSVP for  : " + planName + "/" + phone);
-//		return planService.rsvpPlan(phone, planName, planIndex, groupIndex,
-//				rsvp);
-//	}
+//	
 //
 //	@RequestMapping(method = RequestMethod.GET, value = "/deletePlan")
 //	public @ResponseBody
@@ -504,59 +656,6 @@ public class JustMeetController {
 //		return groupService.fetchGroupList(phone);
 //	}
 //
-//	@RequestMapping(method = RequestMethod.GET, value = "/newPlan")
-//	public @ResponseBody
-//	Plan newPlan(@RequestParam(value = "name") String planName,
-//			@RequestParam(value = "phone") String phone,
-//			@RequestParam(value = "date") String planDate,
-//			@RequestParam(value = "time") String planTime,
-//			@RequestParam(value = "endDate") String endDate,
-//			@RequestParam(value = "endTime") String endTime,
-//			@RequestParam(value = "location") String planLocation,
-//			@RequestParam(value = "phoneList") String phoneList,
-//			@RequestParam(value = "groupList") String groupList,
-//			@RequestParam(value = "creator") String creator) {
-//		logger.info("New Plan addition");
-//		List<String> phones = null;
-//		if (!phoneList.equals("")) {
-//			phones = Arrays.asList(phoneList.split(","));
-//		}
-//
-//		List<String> groups = null;
-//		if (!groupList.equals("")) {
-//			groups = Arrays.asList(groupList.split(","));
-//		}
-//
-//		List<String> gcmList = new ArrayList<String>();
-//		gcmList.add(phone);
-//		if (phones != null && !phones.isEmpty()) {
-//			logger.info("Adding phones" + phones.size());
-//			gcmList.addAll(phones);
-//		}
-//
-//		Plan plan = planService.newPlan(planName, phone, planDate, planTime,
-//				planLocation, phones, groups, creator, endDate, endTime);
-//		if (plan != null && plan.getName().equals(planName)) {
-//			if (groups != null && !groups.isEmpty()) {
-//				for (String groupName : groups) {
-//					Group group = this.groupService.searchGroup(groupName
-//							.replace("%20", " "));
-//					if (group.getMembers() != null
-//							&& !group.getMembers().isEmpty()) {
-//						logger.info("Adding members"
-//								+ group.getMembers().size());
-//						gcmList.addAll(group.getMembers());
-//					}
-//				}
-//			}
-//
-//			this.gcmService.broadcast("Just Meet",
-//					"A new plan has been added '" + planName + "'", gcmList);
-//			logger.info("Plan created : " + planName);
-//			return plan;
-//		}
-//		logger.info("Plan creation failed");
-//		return new Plan();
-//	}
+//	
 
 }

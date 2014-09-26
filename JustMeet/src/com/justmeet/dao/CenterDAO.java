@@ -62,6 +62,20 @@ public class CenterDAO {
 		}
 	}
 	
+	public boolean updateCenter(String id, String centerName, String adminName,
+			String adminPhone, String address) {
+		String updateQuery = "UPDATE theiyers_whatsThePlan.hm_centers SET name=?, admin_name=?, admin_phone=?, address=? WHERE id=?";
+		//TODO File code
+		try {
+			jdbcTemplate.update(updateQuery, centerName, adminName, adminPhone, address, id);
+			return true;
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return false;
+
+		}
+	}
+	
 	public Center fetchCenter(String centerIndex) {
 		log.info("Fetching Center" +centerIndex);
 		String findQUery = "SELECT * FROM theiyers_whatsThePlan.hm_centers where id=?";
@@ -88,6 +102,38 @@ public class CenterDAO {
 							return null;
 						}
 					}, centerIndex);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	
+	public Center fetchCenterForAdmin(String phone) {
+		log.info("Fetching Center" +phone);
+		String findQUery = "SELECT * FROM theiyers_whatsThePlan.hm_centers where admin_phone=?";
+		try {
+			return jdbcTemplate.queryForObject(findQUery,
+					new ParameterizedRowMapper<Center>() {
+
+						public Center mapRow(ResultSet rs, int rowNum)
+								throws SQLException {
+							if (rs != null) {
+								Center center = new Center();
+								center.setId(rs.getInt(1));
+								center.setName(rs.getString(2));
+								String members = rs.getString(3);
+								if(members != null){
+									center.setMembers(Arrays.asList(members.split(",")));
+								}								
+								center.setAdminName(rs.getString(4));
+								center.setAdminPhone(rs.getString(5));
+								center.setImage(rs.getBytes(6));
+								center.setAddress(rs.getString(7));
+								return center;
+							}
+							return null;
+						}
+					}, phone);
 		} catch (Exception e) {
 			return null;
 		}
@@ -250,6 +296,17 @@ public class CenterDAO {
 			return null;
 		}
 
+	}
+    
+    public boolean deleteCenter(String id) {
+		String deleteQuery = "DELETE FROM theiyers_whatsThePlan.hm_centers WHERE id=?";
+		try {
+			jdbcTemplate.update(deleteQuery,id);
+			return true;
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return false;
+		}
 	}
 	
 //	

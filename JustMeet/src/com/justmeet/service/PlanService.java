@@ -32,11 +32,11 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 		User user = userDao
 				.fetchUser(phone);		
 		if (user != null) {
-			List<String> userAndAdminIds = new ArrayList<String>();
-			userAndAdminIds.add(String.valueOf(user.getId()));
-			userAndAdminIds.addAll(user.getCenters());
+			List<String> userAndAdminPhones = new ArrayList<String>();
+			userAndAdminPhones.add(String.valueOf(user.getPhone()));
+			userAndAdminPhones.addAll(user.getCenters());
 			log.info("Fetch Upcoming plans for user");
-			List<Plan> plans = planDao.fetchUpcomingPlans(userAndAdminIds);
+			List<Plan> plans = planDao.fetchUpcomingPlans(userAndAdminPhones);
 			PlanList planList = new PlanList();
 			planList.setPlans(plans);
 			
@@ -46,6 +46,56 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 		
 		return new PlanList();
 
+	}
+	
+	public Plan newPlan(String title, String planDate,
+			String planTime, String userPhone, String userRsvp,
+			String docPhone, String docRsvp, String centerFlag, String endDate, String endTime, String centerId, String centerPlanFile) {
+		      
+
+		int index = planDao.newPlan(title, userPhone, userRsvp, docPhone,  docRsvp, centerFlag, centerId, centerPlanFile, planDate
+				+ " " + planTime, endDate + " " + endTime);
+		if (index > 0) {
+			Plan plan = planDao.fetchPlan(String.valueOf(index));
+			return plan;
+		}
+		return new Plan();
+	}
+	
+	public Plan fetchPlan(String id) {
+		Plan plan = planDao.fetchPlan(id);
+		if(plan != null){
+			return plan;
+		} 
+		log.warn("Plan fetch failed for plan:" +id);
+		return new Plan();
+	}
+	
+	
+	public Plan editPlan(String planId, String title, String planDate, String planTime, String endDate, String endTime){
+		boolean success = planDao.editPlan(planId, title, planDate+" "+planTime, endDate+" "+endTime);
+		Plan plan = planDao.fetchPlan(planId);
+		if(!success){
+			log.warn("Edit failed for plan:" +planId);
+		} 
+		return plan;
+	}
+	
+	public void deletePlan(String planId){
+		boolean success = planDao.deletePlan(planId);
+		
+		if(!success){
+			log.warn("Delete failed for plan:" +planId);
+		} 
+	}
+	
+	public Plan updateRsvp(String planId, String userRsvp, String docRsvp, String planFile){
+		boolean success = planDao.updateRsvp(planId, userRsvp, docRsvp, planFile);
+		Plan plan = planDao.fetchPlan(planId);
+		if(!success){
+			log.warn("Rsvp update failed for plan:" +planId);
+		} 
+		return plan;
 	}
 
 	/*public PlanList fetchGroupPlans(String groupName, String groupIndex) {
@@ -191,57 +241,6 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 		return new Plan();
 	}
 
-	public Plan newPlan(String planName, String phone, String planDate,
-			String planTime, String planLocation, List<String> phones,
-			List<String> groups, String creator, String endDate, String endTime) {
-		List<String> members = new ArrayList<String>();
-		members.add(phone);
-		List<String> phoneList = new ArrayList<String>();
-		phoneList.add(phone);
-		if(phones != null && phones.size() > 0) {
-			log.info("Adding phones" +phones.size());
-			phoneList.addAll(phones);
-		}
-		
-		if(groups != null && !groups.isEmpty()){
-			 for(String groupIndex: groups){
-		        	log.info("Fetching Group" +groupIndex);
-					Group group = groupDao.fetchGroup(groupIndex);
-					
-					
-					if(group.getMembers() != null && group.getMembers().size() > 0) {
-						log.info("Adding members" +group.getMembers().size());
-						phoneList.addAll(group.getMembers());
-					}
-					
-				}
-		}
-       
-
-		int index = planDao.newPlan(planName, phoneList, groups, planDate
-				+ " " + planTime, planLocation, members, creator, endDate + " " + endTime);
-		if (index > 0) {
-			if(groups != null && !groups.isEmpty()){
-				for(String groupIndex: groups){
-					Group group = groupDao.fetchGroup(groupIndex);
-					List<String> plans = group.getPlanNames();
-					plans.add(planName);
-					
-					List<String> planIds = group.getPlanIds();
-					planIds.add(String.valueOf(index));
-					groupDao.updateGroupWithUserPlan(
-							group.getName(), groupIndex, plans, planIds);
-					
-				}
-			}
-			
-			Plan plan = planDao.fetchPlanInformation(planName, String.valueOf(index));
-			
-			return plan;
-			
-		}
-		
-		return new Plan();
-	}*/
+	*/
 
 }

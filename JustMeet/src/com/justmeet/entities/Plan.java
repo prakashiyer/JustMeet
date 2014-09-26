@@ -19,12 +19,12 @@ public class Plan {
 	private String startTime;
 	@XmlElement(name = "endTime")
 	private String endTime;
-	@XmlElement(name = "userId")
-	private int userId;
+	@XmlElement(name = "userPhone")
+	private String userPhone;
 	@XmlElement(name = "userRsvp")
 	private String userRsvp;
-	@XmlElement(name = "docId")
-	private int docId;
+	@XmlElement(name = "docPhone")
+	private String docPhone;
 	@XmlElement(name = "docRsvp")
 	private String docRsvp;
 	@XmlElement(name = "centerPlanFlag")
@@ -69,12 +69,12 @@ public class Plan {
 		this.endTime = endTime;
 	}
 
-	public int getUserId() {
-		return userId;
+	public String getUserPhone() {
+		return userPhone;
 	}
 
-	public void setUserId(int userId) {
-		this.userId = userId;
+	public void setUserPhone(String userPhone) {
+		this.userPhone = userPhone;
 	}
 
 	public String getUserRsvp() {
@@ -85,12 +85,12 @@ public class Plan {
 		this.userRsvp = userRsvp;
 	}
 
-	public int getDocId() {
-		return docId;
+	public String getDocPhone() {
+		return docPhone;
 	}
 
-	public void setDocId(int docId) {
-		this.docId = docId;
+	public void setDocPhone(String docPhone) {
+		this.docPhone = docPhone;
 	}
 
 	public String getDocRsvp() {

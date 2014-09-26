@@ -229,11 +229,11 @@ public class UserDAO {
 	}
 	
 	
-	public boolean updateUserWithCenter(String phone, List<String> memberList) {
-		String updateQuery = "UPDATE theiyers_whatsThePlan.hm_user SET members =? WHERE phone=?";
-		String members = StringUtils.collectionToCommaDelimitedString(memberList);
+	public boolean updateUserWithCenter(String phone, List<String> centerList) {
+		String updateQuery = "UPDATE theiyers_whatsThePlan.hm_user SET centers =? WHERE phone=?";
+		String centers = StringUtils.collectionToCommaDelimitedString(centerList);
 		try {
-			jdbcTemplate.update(updateQuery, members, phone);
+			jdbcTemplate.update(updateQuery, centers, phone);
 			return true;
 		} catch (Exception e) {
 			return false;
