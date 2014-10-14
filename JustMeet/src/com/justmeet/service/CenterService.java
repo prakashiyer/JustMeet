@@ -117,19 +117,24 @@ public class CenterService {
 		return null;
 	}
 
-	public CenterList fetchCentersList(String phoneList) {
-		List<Center> centers = centerDao.fetchCentersList(phoneList);
-		if (centers != null) {
-			log.info("Center List fetched successfully, Size is: "
-					+ centers.size());
-			CenterList centerList = new CenterList();
-			centerList.setCenters(centers);
-			;
-			return centerList;
-		} else {
-			log.error("Center List fetch failed ");
-			return new CenterList();
+	public CenterList fetchCentersList(String phone) {
+		User user = userDao.fetchUser(phone);
+		
+		if(user != null){
+			List<String> centerIds = user.getCenters();
+			String centerIdsString = StringUtils.collectionToCommaDelimitedString(centerIds);
+			List<Center> centers = centerDao.fetchCentersList(centerIdsString);
+			if (centers != null) {
+				log.info("Center List fetched successfully, Size is: "
+						+ centers.size());
+				CenterList centerList = new CenterList();
+				centerList.setCenters(centers);
+				return centerList;
+			} 
 		}
+		log.error("Center List fetch failed ");
+		return new CenterList();
+		
 	}
 
 	public CenterList searchCenter(String name) {

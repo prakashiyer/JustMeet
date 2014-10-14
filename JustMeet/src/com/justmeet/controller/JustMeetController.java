@@ -68,9 +68,9 @@ public class JustMeetController {
 			@RequestParam(value = "sex") String sex,
 			@RequestParam(value = "address") String address,
 			@RequestParam(value = "doctorFlag") String doctorFlag,
-			@RequestParam(value = "primaryCenterId") String primaryCenterId,
-			@RequestParam(value = "primaryDoctorId") String primaryDoctorId,
-			@RequestParam(value = "centers") String centers) {
+			@RequestParam(value = "primaryCenterId", required = false) String primaryCenterId,
+			@RequestParam(value = "primaryDoctorId", required = false) String primaryDoctorId,
+			@RequestParam(value = "centers", required = false) String centers) {
 		logger.info("New User addition: " + phone + "/" + name);
 		return this.userService.addUser(name, phone, bloodGroup, dob, sex,
 				address, doctorFlag, primaryCenterId, primaryDoctorId, centers);
@@ -179,8 +179,8 @@ public class JustMeetController {
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchExistingCenters")
 	public @ResponseBody
 	CenterList fetchExistingCenters(
-			@RequestParam(value = "centerList") String centerList) {
-		return centerService.fetchCentersList(centerList);
+			@RequestParam(value = "phone") String phone) {
+		return centerService.fetchCentersList(phone);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/searchCenter")
@@ -245,6 +245,41 @@ public class JustMeetController {
 		logger.info("Fetch plan for " + id);
 		return planService.fetchPlan(id);
 
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchPlanUsers")
+	public @ResponseBody
+	UserList fetchPlanUsers(@RequestParam(value = "id") String id) {
+		logger.info("Fetch plan for " + id);
+		Plan plan = planService.fetchPlan(id);
+		UserList userList = new UserList();
+		List<User> users = new ArrayList<User>();
+		if("Y".equals(plan.getCenterPlanFlag())){
+			String planFile = plan.getPlanFile();
+			if(!StringUtils.isEmpty(planFile)){
+				String[] memberRsvps = StringUtils.commaDelimitedListToStringArray(planFile);
+				for(String memberRsvp: memberRsvps){
+					String[] rsvp = StringUtils.delimitedListToStringArray(memberRsvp, "|");
+					if("Y".equals(rsvp[1])){
+						User user = userService.fetchUser(rsvp[0]);
+						users.add(user);
+					}
+				}
+			}
+			
+		} else {
+			if("Y".equals(plan.getUserRsvp())){
+				String userPhone = plan.getUserPhone();
+				User user = userService.fetchUser(userPhone);
+				users.add(user);
+			}
+			if("Y".equals(plan.getDocRsvp())){
+				String docPhone = plan.getDocPhone();
+				User user = userService.fetchUser(docPhone);
+				users.add(user);
+			}		
+		}
+		return userList;
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/newPlan")

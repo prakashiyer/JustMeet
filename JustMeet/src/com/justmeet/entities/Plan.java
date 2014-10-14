@@ -25,12 +25,16 @@ public class Plan {
 	private String userRsvp;
 	@XmlElement(name = "docPhone")
 	private String docPhone;
+	@XmlElement(name = "docName")
+	private String docName;
 	@XmlElement(name = "docRsvp")
 	private String docRsvp;
 	@XmlElement(name = "centerPlanFlag")
 	private String centerPlanFlag;
 	@XmlElement(name = "centerId")
 	private String centerId;
+	@XmlElement(name = "centerName")
+	private String centerName;
 	@XmlElement(name = "planFile")
 	private String planFile;
 
@@ -125,5 +129,19 @@ public class Plan {
 		this.planFile = planFile;
 	}
 
+	public String getCenterName() {
+		return centerName;
+	}
+
+	public void setCenterName(String centerName) {
+		this.centerName = centerName;
+	}
 	
+	public String getDocName() {
+		return docName;
+	}
+
+	public void setDocName(String docName) {
+		this.docName = docName;
+	}
 }

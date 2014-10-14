@@ -7,9 +7,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.justmeet.dao.CenterDAO;
 import com.justmeet.dao.GroupDAO;
 import com.justmeet.dao.PlanDAO;
 import com.justmeet.dao.UserDAO;
+import com.justmeet.entities.Center;
 import com.justmeet.entities.Group;
 import com.justmeet.entities.Plan;
 import com.justmeet.entities.PlanList;
@@ -26,7 +28,7 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 	private PlanDAO planDao;
 	
 	@Autowired
-	private GroupDAO groupDao;
+	private CenterDAO centerDao;
 
 	public PlanList fetchUpcomingPlans(String phone) {
 		User user = userDao
@@ -65,6 +67,10 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 	public Plan fetchPlan(String id) {
 		Plan plan = planDao.fetchPlan(id);
 		if(plan != null){
+			if("Y".equals(plan.getCenterPlanFlag())){
+				Center center = centerDao.fetchCenter(plan.getCenterId());
+				plan.setCenterName(center.getName());
+			}
 			return plan;
 		} 
 		log.warn("Plan fetch failed for plan:" +id);

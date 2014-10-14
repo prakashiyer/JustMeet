@@ -182,10 +182,10 @@ public class CenterDAO {
 		}
 	}
 	
-    public List<Center> fetchCentersList(String phoneList) {
+    public List<Center> fetchCentersList(String centerIds) {
 
-		String findQUery = "SELECT * FROM theiyers_whatsThePlan.hm_centers where admin_phone in ("
-				+ phoneList + ")";
+		String findQUery = "SELECT * FROM theiyers_whatsThePlan.hm_centers where id in ("
+				+ centerIds + ")";
 		try {
 			return jdbcTemplate.query(findQUery,
 					new ParameterizedRowMapper<Center>() {
