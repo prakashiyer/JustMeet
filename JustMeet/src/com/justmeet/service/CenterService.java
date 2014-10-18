@@ -64,16 +64,6 @@ public class CenterService {
 
 		return new Center();
 	}
-	
-	public Center updateCenter(String id, String centerName, String adminName,
-			String adminPhone, String address){
-		boolean success = centerDao.updateCenter(id, centerName, adminName, adminPhone, address);
-		Center center = centerDao.fetchCenter(id);
-		if(!success){
-			log.warn("Update failed for center:" +centerName);
-		} 
-		return center;
-	}
 			
 	public Center fetchCenter(String centerIndex) {
 		Center center = centerDao.fetchCenter(centerIndex);
@@ -82,19 +72,40 @@ public class CenterService {
 		}
 		return new Center();
 	}
+	
+	public UserList fetchCenterUsers(String centerIndex) {
+		UserList userList = new UserList();
+		Center center = centerDao.fetchCenter(centerIndex);
+		if (center != null) {
+			List<String> members = center.getMembers();
+			if(members != null && !members.isEmpty()){
+				List<User> users = new ArrayList<User>();
+				for(String phone: members){
+					User user = userDao.fetchUser(phone);
+					users.add(user);
+				}
+				userList.setUsers(users);
+			}
+		}
+		return userList;
+	}
 
 	public Center editCenter(String id, String centerName, String adminName,
-			String adminPhone, String address) {
+			String adminPhone, String address, MultipartFile file) {
 
-		log.warn("Inputs: " + centerName + "/" + adminPhone);
-		boolean success = centerDao.editCenter(id, centerName, adminName,
-				adminPhone, address);
-
-		if (success) {
-			// Fetch current groups
-			return centerDao.fetchCenter(id);
+		try {
+			InputStream inputStream = file.getInputStream();
+			boolean success = centerDao.editCenter(id, centerName, adminName,
+					adminPhone, address, inputStream);
+			if (success) {
+				// Fetch current groups
+				return centerDao.fetchCenter(id);
+			}
+		} catch (IOException e) {
+			log.error("Image upload failed, center id: " + id);
 		}
-
+		log.warn("Inputs: " + centerName + "/" + adminPhone);
+		
 		return new Center();
 	}
 

@@ -89,13 +89,12 @@ public class UserDAO {
 	
 	
 	public boolean editUser(String name, String phone, String bloodGroup,
-			Date dobDate, String sex, String address, String doctorFlag,
-			String primaryCenterId, String primaryDoctorId) {
-		String updateQuery = "UPDATE theiyers_whatsThePlan.hm_user SET name=?, blood_group=?, dob=?, sex=?, address=?, doc_flag=?, primary_center_id=?, primary_doctor_id=? WHERE phone=?";
+			Date dobDate, String sex, String address, String doctorFlag) {
+		String updateQuery = "UPDATE theiyers_whatsThePlan.hm_user SET name=?, blood_group=?, dob=?, sex=?, address=?, doc_flag=? WHERE phone=?";
 		
 		try {
 			jdbcTemplate.update(updateQuery, name, bloodGroup,
-					dobDate, sex, address, doctorFlag, primaryCenterId, primaryDoctorId, phone);
+					dobDate, sex, address, doctorFlag, phone);
 			return true;
 		} catch (Exception e) {
 			return false;

@@ -83,8 +83,7 @@ public class UserService {
 	}
 	
 	public User editUser(String name, String phone, String bloodGroup,
-			String dob, String sex, String address, String doctorFlag,
-			String primaryCenterId, String primaryDoctorId) {
+			String dob, String sex, String address, String doctorFlag) {
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		Date dobDate = new Date();
 		try {
@@ -94,7 +93,7 @@ public class UserService {
 		}
 
 		userDao.editUser(name, phone, bloodGroup, dobDate, sex, address,
-				doctorFlag, primaryCenterId, primaryDoctorId);
+				doctorFlag);
 		User user = userDao.fetchUser(phone);
 		if (user != null) {
 			log.info("User added successfully: " + phone + "/" + name);

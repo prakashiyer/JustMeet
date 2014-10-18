@@ -31,22 +31,25 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 	private CenterDAO centerDao;
 
 	public PlanList fetchUpcomingPlans(String phone) {
+		List<String> userAndAdminPhones = new ArrayList<String>();
+		userAndAdminPhones.add(phone);
 		User user = userDao
 				.fetchUser(phone);		
 		if (user != null) {
-			List<String> userAndAdminPhones = new ArrayList<String>();
-			userAndAdminPhones.add(String.valueOf(user.getPhone()));
-			userAndAdminPhones.addAll(user.getCenters());
-			log.info("Fetch Upcoming plans for user");
-			List<Plan> plans = planDao.fetchUpcomingPlans(userAndAdminPhones);
-			PlanList planList = new PlanList();
-			planList.setPlans(plans);
-			
-			return planList;
-			
+			List<String> centerIds = user.getCenters();
+			if(centerIds != null && !centerIds.isEmpty()){
+				for(String centerId: centerIds){
+					Center center = centerDao.fetchCenter(centerId);
+					userAndAdminPhones.add(center.getAdminPhone());
+				}
+			}
 		}
+		log.info("Fetch Upcoming plans for user");
+		List<Plan> plans = planDao.fetchUpcomingPlans(userAndAdminPhones);
+		PlanList planList = new PlanList();
+		planList.setPlans(plans);
 		
-		return new PlanList();
+		return planList;
 
 	}
 	

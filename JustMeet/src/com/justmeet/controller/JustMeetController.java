@@ -69,11 +69,10 @@ public class JustMeetController {
 			@RequestParam(value = "address") String address,
 			@RequestParam(value = "doctorFlag") String doctorFlag,
 			@RequestParam(value = "primaryCenterId", required = false) String primaryCenterId,
-			@RequestParam(value = "primaryDoctorId", required = false) String primaryDoctorId,
-			@RequestParam(value = "centers", required = false) String centers) {
+			@RequestParam(value = "primaryDoctorId", required = false) String primaryDoctorId) {
 		logger.info("New User addition: " + phone + "/" + name);
 		return this.userService.addUser(name, phone, bloodGroup, dob, sex,
-				address, doctorFlag, primaryCenterId, primaryDoctorId, centers);
+				address, doctorFlag, primaryCenterId, primaryDoctorId, "");
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/uploadUserImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -92,12 +91,10 @@ public class JustMeetController {
 			@RequestParam(value = "dob") String dob,
 			@RequestParam(value = "sex") String sex,
 			@RequestParam(value = "address") String address,
-			@RequestParam(value = "doctorFlag") String doctorFlag,
-			@RequestParam(value = "primaryCenterId") String primaryCenterId,
-			@RequestParam(value = "primaryDoctorId") String primaryDoctorId) {
+			@RequestParam(value = "doctorFlag") String doctorFlag) {
 		logger.info("Edit User addition: " + phone + "/" + name);
 		return userService.editUser(name, phone, bloodGroup, dob, sex, address,
-				doctorFlag, primaryCenterId, primaryDoctorId);
+				doctorFlag);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchUser")
@@ -138,17 +135,6 @@ public class JustMeetController {
 		return centerService.addCenter(name, adminName, adminPhone, address, members, file);
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, value = "/updateCenter")
-	public @ResponseBody
-	Center updateCenter(@RequestParam(value = "id") String id,
-			@RequestParam(value = "name") String name,
-			@RequestParam(value = "adminName") String adminName,
-			@RequestParam(value = "adminPhone") String adminPhone,
-			@RequestParam(value = "address") String address) {
-		logger.info("Update Center: " + adminPhone + "/" + name);
-		return centerService.updateCenter(id, name, adminName, adminPhone, address);
-	}
-	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchCenter")
 	public @ResponseBody
 	Center fetchCenter(@RequestParam(value = "id") String id) {
@@ -156,15 +142,23 @@ public class JustMeetController {
 		return centerService.fetchCenter(id);
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, value = "/editCenter")
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchCenterUsers")
+	public @ResponseBody
+	UserList fetchCenterUsers(@RequestParam(value = "id") String id) {
+		logger.info("Center Users Fetch: " + id);
+		return centerService.fetchCenterUsers(id);
+	}
+	
+	@RequestMapping(method = RequestMethod.POST, value = "/editCenter", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
 	public @ResponseBody
 	Center editCenter(@RequestParam(value = "id") String id,
 			@RequestParam(value = "name") String name,
 			@RequestParam(value = "adminName") String adminName,
 			@RequestParam(value = "adminPhone") String adminPhone,
-			@RequestParam(value = "address") String address) {
+			@RequestParam(value = "address") String address,
+			@RequestParam(value = "image") MultipartFile file) {
 		logger.info("Add Center: " + adminPhone + "/" + name);
-		return centerService.editCenter(id, name, adminName, adminPhone, address);
+		return centerService.editCenter(id, name, adminName, adminPhone, address, file);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/uploadCenterImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)

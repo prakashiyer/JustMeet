@@ -150,11 +150,11 @@ public class CenterDAO {
 		}
 	}
 
-    public boolean editCenter(String id, String centerName, String adminName, String adminPhone, String address) {
+    public boolean editCenter(String id, String centerName, String adminName, String adminPhone, String address, InputStream inputStream) {
 		
-    	String updateQuery = "UPDATE theiyers_whatsThePlan.hm_centers SET name=?, admin_name=?, admin_phone=?, address=? WHERE id=?";
+    	String updateQuery = "UPDATE theiyers_whatsThePlan.hm_centers SET name=?, admin_name=?, admin_phone=?, address=?, image=? WHERE id=?";
 		try {
-			jdbcTemplate.update(updateQuery, centerName, adminName, adminPhone, address, id);
+			jdbcTemplate.update(updateQuery, centerName, adminName, adminPhone, address, inputStream, id);
 			return true;
 		} catch (Exception e) {
 			log.warn(e.getMessage());
