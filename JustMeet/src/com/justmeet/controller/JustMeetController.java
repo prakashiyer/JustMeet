@@ -136,7 +136,7 @@ public class JustMeetController {
 	
 	//*****************CENTERS***************************************
 
-	@RequestMapping(method = RequestMethod.POST, value = "/addCenter", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
+	@RequestMapping(method = RequestMethod.POST, value = "/addCenter", headers = "Accept=*/*")
 	public @ResponseBody
 	Center addCenter(@RequestParam(value = "name") String name,
 			@RequestParam(value = "adminName") String adminName,
