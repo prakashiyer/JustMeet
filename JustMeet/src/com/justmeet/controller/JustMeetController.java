@@ -293,6 +293,9 @@ public class JustMeetController {
 				users.add(user);
 			}		
 		}
+		if(!users.isEmpty()){
+			userList.setUsers(users);
+		}
 		return userList;
 	}
 	
