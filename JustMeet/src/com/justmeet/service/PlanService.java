@@ -34,9 +34,11 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 		List<String> userAndAdminPhones = new ArrayList<String>();
 		userAndAdminPhones.add(phone);
 		User user = userDao
-				.fetchUser(phone);		
+				.fetchUser(phone);
+		String docFlag = "N";
 		if (user != null) {
 			List<String> centerIds = user.getCenters();
+			docFlag = user.getDoctorFlag();
 			if(centerIds != null && !centerIds.isEmpty()){
 				for(String centerId: centerIds){
 					Center center = centerDao.fetchCenter(centerId);
@@ -45,7 +47,7 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 			}
 		}
 		log.info("Fetch Upcoming plans for user");
-		List<Plan> plans = planDao.fetchUpcomingPlans(userAndAdminPhones,user.getDoctorFlag());
+		List<Plan> plans = planDao.fetchUpcomingPlans(userAndAdminPhones, docFlag);
 		PlanList planList = new PlanList();
 		planList.setPlans(plans);
 		
