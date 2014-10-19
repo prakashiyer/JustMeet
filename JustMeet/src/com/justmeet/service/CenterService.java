@@ -133,15 +133,18 @@ public class CenterService {
 		
 		if(user != null){
 			List<String> centerIds = user.getCenters();
-			String centerIdsString = StringUtils.collectionToCommaDelimitedString(centerIds);
-			List<Center> centers = centerDao.fetchCentersList(centerIdsString);
-			if (centers != null) {
-				log.info("Center List fetched successfully, Size is: "
-						+ centers.size());
-				CenterList centerList = new CenterList();
-				centerList.setCenters(centers);
-				return centerList;
-			} 
+			if(centerIds != null && !centerIds.isEmpty()){
+				String centerIdsString = StringUtils.collectionToCommaDelimitedString(centerIds);
+				List<Center> centers = centerDao.fetchCentersList(centerIdsString);
+				if (centers != null) {
+					log.info("Center List fetched successfully, Size is: "
+							+ centers.size());
+					CenterList centerList = new CenterList();
+					centerList.setCenters(centers);
+					return centerList;
+				} 
+			}
+			
 		}
 		log.error("Center List fetch failed ");
 		return new CenterList();
