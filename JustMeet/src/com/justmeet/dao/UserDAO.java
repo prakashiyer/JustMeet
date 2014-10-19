@@ -58,7 +58,10 @@ public class UserDAO {
 								user.setPrimaryCenterId(rs.getInt(4));
 								user.setPrimaryDoctorId(rs.getInt(5));
 								String centers = rs.getString(6);
-								user.setCenters(Arrays.asList(centers.split(",")));
+								if(!StringUtils.isEmpty(centers)){
+									user.setCenters(Arrays.asList(centers.split(",")));
+								}
+								
 								user.setImage(rs.getBytes(7));
 								user.setBloodGroup(rs.getString(8));
 								// TODO Fetch Date
@@ -155,7 +158,9 @@ public class UserDAO {
 								user.setPrimaryCenterId(rs.getInt(4));
 								user.setPrimaryDoctorId(rs.getInt(5));
 								String centers = rs.getString(6);
-								user.setCenters(Arrays.asList(centers.split(",")));
+								if(!StringUtils.isEmpty(centers)){
+									user.setCenters(Arrays.asList(centers.split(",")));
+								}
 								user.setImage(rs.getBytes(7));
 								user.setBloodGroup(rs.getString(8));
 								// TODO Fetch Date
@@ -200,7 +205,9 @@ public class UserDAO {
 								user.setPrimaryCenterId(rs.getInt(4));
 								user.setPrimaryDoctorId(rs.getInt(5));
 								String centers = rs.getString(6);
-								user.setCenters(Arrays.asList(centers.split(",")));
+								if(!StringUtils.isEmpty(centers)){
+									user.setCenters(Arrays.asList(centers.split(",")));
+								}
 								user.setImage(rs.getBytes(7));
 								user.setBloodGroup(rs.getString(8));
 								// TODO Fetch Date
