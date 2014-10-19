@@ -431,8 +431,11 @@ public class JustMeetController {
 			if("Y".equals(rsvp)) {
 				gcmService.broadcast("Health Meet", userName+" has accepted appointment titled: "+plan.getTitle(), gcmList);
 			} else {
+				planService.deletePlan(String.valueOf(plan.getId()));
 				gcmService.broadcast("Health Meet", userName+" has declined appointment titled: "+plan.getTitle(), gcmList);
+				return plan;
 			}
+			
 			return planService.updateRsvp(id, rsvp, plan.getDocRsvp(), plan.getPlanFile());
 		}
 	}
