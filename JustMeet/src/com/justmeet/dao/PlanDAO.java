@@ -122,11 +122,16 @@ public class PlanDAO {
 
 	}*/
 	
-	public List<Plan> fetchUpcomingPlans(List<String> userAndAdminsList) {
+	public List<Plan> fetchUpcomingPlans(List<String> userAndAdminsList, String docFlag) {
 		
 		if(!userAndAdminsList.isEmpty()) {
 			String userAndAdmins = StringUtils.collectionToCommaDelimitedString(userAndAdminsList);
-			String findQuery = "SELECT * FROM theiyers_whatsThePlan.hm_plans where user_phone in ("+userAndAdmins+") ";
+			String findQuery = "";
+			if("Y".equals(docFlag)){
+				findQuery = "SELECT * FROM theiyers_whatsThePlan.hm_plans where doc_phone in ("+userAndAdmins+") ";
+			} else {
+				findQuery = "SELECT * FROM theiyers_whatsThePlan.hm_plans where user_phone in ("+userAndAdmins+") ";
+			}
 			
 			Calendar calendar = Calendar.getInstance();
 			int month = calendar.get(Calendar.MONTH) + 1;

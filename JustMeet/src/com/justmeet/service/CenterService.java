@@ -201,7 +201,7 @@ public class CenterService {
 					List<String> userAndAdminsList = new ArrayList<String>();
 					userAndAdminsList.add(adminPhone);
 					List<Plan> planList = planDao
-							.fetchUpcomingPlans(userAndAdminsList);
+							.fetchUpcomingPlans(userAndAdminsList, user.getDoctorFlag());
 					if (planList != null) {
 						for (Plan plan : planList) {
 							String planFile = plan.getPlanFile();
@@ -257,7 +257,7 @@ public class CenterService {
 					List<String> userAndAdminsList = new ArrayList<String>();
 					userAndAdminsList.add(adminPhone);
 					List<Plan> planList = planDao
-							.fetchUpcomingPlans(userAndAdminsList);
+							.fetchUpcomingPlans(userAndAdminsList, user.getDoctorFlag());
 					if (planList != null) {
 						for (Plan plan : planList) {
 							planDao.updateRsvp(String.valueOf(plan.getId()),
@@ -332,7 +332,7 @@ public class CenterService {
 		List<String> userAndAdminsList = new ArrayList<String>();
 		userAndAdminsList.add(adminPhone);
 		List<Plan> planList = planDao
-				.fetchUpcomingPlans(userAndAdminsList);
+				.fetchUpcomingPlans(userAndAdminsList, "N");
 		if (planList != null) {
 			for (Plan plan : planList) {
 				planDao.deletePlan(String.valueOf(plan.getId()));

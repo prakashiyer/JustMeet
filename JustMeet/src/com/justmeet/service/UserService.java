@@ -162,7 +162,7 @@ public class UserService {
 					List<String> userAndAdminsList = new ArrayList<String>();
 					userAndAdminsList.add(phone);
 					userAndAdminsList.add(adminPhone);
-					List<Plan> plans = planDao.fetchUpcomingPlans(userAndAdminsList);
+					List<Plan> plans = planDao.fetchUpcomingPlans(userAndAdminsList, userInformation.getDoctorFlag());
 					
 					if (plans != null && !plans.isEmpty()) {
 						for(Plan plan:plans){

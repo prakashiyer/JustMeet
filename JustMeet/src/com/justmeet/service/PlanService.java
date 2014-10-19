@@ -45,7 +45,7 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 			}
 		}
 		log.info("Fetch Upcoming plans for user");
-		List<Plan> plans = planDao.fetchUpcomingPlans(userAndAdminPhones);
+		List<Plan> plans = planDao.fetchUpcomingPlans(userAndAdminPhones,user.getDoctorFlag());
 		PlanList planList = new PlanList();
 		planList.setPlans(plans);
 		
