@@ -71,7 +71,7 @@ public class JustMeetController {
 			@RequestParam(value = "primaryCenterId", required = false) String primaryCenterId,
 			@RequestParam(value = "primaryDoctorId", required = false) String primaryDoctorId) {
 		logger.info("New User addition: " + phone + "/" + name);
-		return this.userService.addUser(name, phone, bloodGroup, dob, sex,
+		return this.userService.addUser(name.replace("%20", " "), phone, bloodGroup, dob, sex,
 				address, doctorFlag, primaryCenterId, primaryDoctorId, "");
 	}
 
@@ -93,7 +93,7 @@ public class JustMeetController {
 			@RequestParam(value = "address") String address,
 			@RequestParam(value = "doctorFlag") String doctorFlag) {
 		logger.info("Edit User addition: " + phone + "/" + name);
-		return userService.editUser(name, phone, bloodGroup, dob, sex, address,
+		return userService.editUser(name.replace("%20", " "), phone, bloodGroup, dob, sex, address,
 				doctorFlag);
 	}
 
@@ -145,7 +145,7 @@ public class JustMeetController {
 			@RequestParam(value = "members") String members,
 			@RequestParam(value = "image") MultipartFile file) {
 		logger.info("Add Center: " + adminPhone + "/" + name);
-		return centerService.addCenter(name, adminName, adminPhone, address, members, file);
+		return centerService.addCenter(name.replace("%20", " "), adminName.replace("%20", " "), adminPhone, address, members, file);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchCenter")
@@ -171,7 +171,7 @@ public class JustMeetController {
 			@RequestParam(value = "address") String address,
 			@RequestParam(value = "image") MultipartFile file) {
 		logger.info("Add Center: " + adminPhone + "/" + name);
-		return centerService.editCenter(id, name, adminName, adminPhone, address, file);
+		return centerService.editCenter(id, name.replace("%20", " "), adminName.replace("%20", " "), adminPhone, address, file);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/uploadCenterImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
