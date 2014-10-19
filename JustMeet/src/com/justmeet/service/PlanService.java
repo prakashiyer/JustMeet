@@ -106,6 +106,21 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 	public Plan updateRsvp(String planId, String userRsvp, String docRsvp, String planFile){
 		boolean success = planDao.updateRsvp(planId, userRsvp, docRsvp, planFile);
 		Plan plan = planDao.fetchPlan(planId);
+		if("Y".equals(plan.getCenterPlanFlag())){
+			String centerId = plan.getCenterId();
+			Center center = centerDao.fetchCenter(centerId);
+			if(center != null){
+				plan.setCenterName(center.getName());
+			}
+		} else {
+			String phone = plan.getDocPhone();
+			User user = userDao.fetchUser(phone);
+			if(user != null){
+				plan.setDocName(user.getName());
+			}
+		}
+		
+		
 		if(!success){
 			log.warn("Rsvp update failed for plan:" +planId);
 		} 

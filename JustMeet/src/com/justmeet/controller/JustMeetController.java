@@ -273,11 +273,13 @@ public class JustMeetController {
 			if(!StringUtils.isEmpty(planFile)){
 				String[] memberRsvps = StringUtils.commaDelimitedListToStringArray(planFile);
 				for(String memberRsvp: memberRsvps){
-					String[] rsvp = StringUtils.delimitedListToStringArray(memberRsvp, "|");
-					if("Y".equals(rsvp[1])){
-						User user = userService.fetchUser(rsvp[0]);
-						users.add(user);
-					}
+					if(!StringUtils.isEmpty(memberRsvp)){
+						String[] rsvp = StringUtils.delimitedListToStringArray(memberRsvp, "|");
+						if("Y".equals(rsvp[1])){
+							User user = userService.fetchUser(rsvp[0]);
+							users.add(user);
+						}
+					}					
 				}
 			}
 			
