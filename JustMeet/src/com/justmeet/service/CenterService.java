@@ -282,20 +282,26 @@ public class CenterService {
 
 	public CenterList fetchUserCenters(String phone) {
 		User user = userDao.fetchUser(phone);
-		List<String> centerIdList = user.getCenters();
-		String centerIds = StringUtils
-				.collectionToCommaDelimitedString(centerIdList);
-		List<Center> centers = centerDao.fetchUserCenters(centerIds);
-		if (centers != null) {
-			log.info("Center List fetched successfully, Size is: "
-					+ centers.size());
-			CenterList centerList = new CenterList();
-			centerList.setCenters(centers);
-			return centerList;
-		} else {
-			log.error("Center List fetch failed ");
-			return new CenterList();
+		if(user != null){
+			List<String> centerIdList = user.getCenters();
+			if(centerIdList != null && !centerIdList.isEmpty()){
+				String centerIds = StringUtils
+						.collectionToCommaDelimitedString(centerIdList);
+				if(!StringUtils.isEmpty(centerIds)){
+					List<Center> centers = centerDao.fetchUserCenters(centerIds);
+					if (centers != null) {
+						log.info("Center List fetched successfully, Size is: "
+								+ centers.size());
+						CenterList centerList = new CenterList();
+						centerList.setCenters(centers);
+						return centerList;
+					}
+				}				
+			}
+			
 		}
+		log.error("Center List fetch failed ");
+		return new CenterList();
 	}
 
 	public Center fetchCenterForAdmin(String phone) {
