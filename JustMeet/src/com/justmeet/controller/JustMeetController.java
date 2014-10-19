@@ -157,9 +157,9 @@ public class JustMeetController {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchCenterUsers")
 	public @ResponseBody
-	UserList fetchCenterUsers(@RequestParam(value = "id") String id) {
-		logger.info("Center Users Fetch: " + id);
-		return centerService.fetchCenterUsers(id);
+	UserList fetchCenterUsers(@RequestParam(value = "phone") String phone) {
+		logger.info("Center Users Fetch: " + phone);
+		return centerService.fetchCenterUsers(phone);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/editCenter")
@@ -230,9 +230,9 @@ public class JustMeetController {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/deleteCenter")
 	public @ResponseBody
-	void deleteCenter(@RequestParam(value = "id") String id) {
-		logger.info("Delete Center: " + id);
-		centerService.deleteCenter(id);
+	void deleteCenter(@RequestParam(value = "phone") String phone) {
+		logger.info("Delete Center: " + phone);
+		centerService.deleteCenter(phone);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchCenterImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)

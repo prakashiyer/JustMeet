@@ -73,15 +73,15 @@ public class CenterService {
 		return new Center();
 	}
 	
-	public UserList fetchCenterUsers(String centerIndex) {
+	public UserList fetchCenterUsers(String phone) {
 		UserList userList = new UserList();
-		Center center = centerDao.fetchCenter(centerIndex);
+		Center center = centerDao.fetchCenterForAdmin(phone);
 		if (center != null) {
 			List<String> members = center.getMembers();
 			if(members != null && !members.isEmpty()){
 				List<User> users = new ArrayList<User>();
-				for(String phone: members){
-					User user = userDao.fetchUser(phone);
+				for(String memberPhone: members){
+					User user = userDao.fetchUser(memberPhone);
 					users.add(user);
 				}
 				userList.setUsers(users);
@@ -309,12 +309,13 @@ public class CenterService {
 		}
 	}
 	
-	public void deleteCenter(String id) {
-		Center center = centerDao.fetchCenter(id);
+	public void deleteCenter(String phone) {
+		Center center = centerDao.fetchCenterForAdmin(phone);
+		String id = String.valueOf(center.getId());
 		List<String> centerMembers = center.getMembers();
 		if (centerMembers != null && !centerMembers.isEmpty()) {
-			for(String phone: centerMembers){
-				User user = userDao.fetchUser(phone);
+			for(String memberPhone: centerMembers){
+				User user = userDao.fetchUser(memberPhone);
 				if(user != null){
 					List<String> centerIds = user.getCenters();
 					if(centerIds != null && !centerIds.isEmpty()){
@@ -324,7 +325,7 @@ public class CenterService {
 								newCenterIds.add(centerId);
 							}
 						}
-						userDao.updateUserWithCenter(phone, newCenterIds);
+						userDao.updateUserWithCenter(memberPhone, newCenterIds);
 					}
 				}
 			}
