@@ -136,7 +136,7 @@ public class JustMeetController {
 	
 	//*****************CENTERS***************************************
 
-	@RequestMapping(method = RequestMethod.POST, value = "/addCenter", headers = "Accept=*/*")
+	@RequestMapping(method = RequestMethod.POST, value = "/addCenter")
 	public @ResponseBody
 	Center addCenter(@RequestParam(value = "name") String name,
 			@RequestParam(value = "adminName") String adminName,
@@ -162,7 +162,7 @@ public class JustMeetController {
 		return centerService.fetchCenterUsers(id);
 	}
 	
-	@RequestMapping(method = RequestMethod.POST, value = "/editCenter", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
+	@RequestMapping(method = RequestMethod.POST, value = "/editCenter")
 	public @ResponseBody
 	Center editCenter(@RequestParam(value = "id") String id,
 			@RequestParam(value = "name") String name,
