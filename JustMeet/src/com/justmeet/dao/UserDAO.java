@@ -125,7 +125,7 @@ public class UserDAO {
 								throws SQLException {
 							if (rs != null) {
 								log.info("Image fetched");
-								return rs.getBinaryStream(6);
+								return rs.getBinaryStream(7);
 							}
 							return null;
 						}
@@ -239,6 +239,17 @@ public class UserDAO {
 		}
 	}
 	
+	public boolean deleteUser(String phone) {
+		String deleteQuery = "DELETE FROM theiyers_whatsThePlan.hm_user WHERE phone=?";
+
+		try {
+			jdbcTemplate.update(deleteQuery, phone);
+			return true;
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return false;
+		}
+	}
 	
 //	
 //
@@ -306,17 +317,7 @@ public class UserDAO {
 //		}
 //	}
 //
-//	public boolean deleteUserInformation(String phone) {
-//		String deleteQuery = "DELETE FROM theiyers_whatsThePlan.user_informatiion WHERE phone=?";
-//
-//		try {
-//			jdbcTemplate.update(deleteQuery, phone);
-//			return true;
-//		} catch (Exception e) {
-//			log.warn(e.getMessage());
-//			return false;
-//		}
-//	}
+//	
 //
 //	
 }

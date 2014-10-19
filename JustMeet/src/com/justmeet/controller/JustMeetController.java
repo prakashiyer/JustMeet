@@ -119,6 +119,19 @@ public class JustMeetController {
 		return userService.searchDoctors(name.replace("%20", " "));
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchUserImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
+    public @ResponseBody
+	byte[] fetchUserImage(@RequestParam(value = "phone") String phone) {
+		logger.info("Image fetch started.");
+		return userService.fetchUserImage(phone);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/deleteUser")
+	public @ResponseBody
+	void deleteUser(@RequestParam(value = "phone") String phone) {
+		logger.info("Delete User: " + phone);
+		userService.deleteUser(phone);
+	}
 	
 	
 	//*****************CENTERS***************************************
@@ -220,6 +233,13 @@ public class JustMeetController {
 	void deleteCenter(@RequestParam(value = "id") String id) {
 		logger.info("Delete Center: " + id);
 		centerService.deleteCenter(id);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchCenterImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
+	public @ResponseBody
+	byte[] fetchGroupImage(@RequestParam(value = "id") String id) {
+		logger.info("Center Image fetch started: " + id);
+		return centerService.fetchCenterImage(id);
 	}
 	
 	

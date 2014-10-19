@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -11,11 +12,14 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.justmeet.dao.GroupDAO;
+import com.justmeet.dao.CenterDAO;
 import com.justmeet.dao.PlanDAO;
 import com.justmeet.dao.UserDAO;
+import com.justmeet.entities.Center;
+import com.justmeet.entities.Plan;
 import com.justmeet.entities.User;
 import com.justmeet.entities.UserList;
 
@@ -27,7 +31,7 @@ public class UserService {
 	private UserDAO userDao;
 
 	@Autowired
-	private GroupDAO groupDao;
+	private CenterDAO centerDao;
 
 	@Autowired
 	private PlanDAO planDao;
@@ -128,81 +132,57 @@ public class UserService {
 			return new UserList();
 		}
 	}
+	
+	public byte[] fetchUserImage(String phone) {
+		try {
+			InputStream image = userDao.fetchUserImage(phone);
+			if (image != null) {
+				return IOUtils.toByteArray(image);
+			}
+		} catch (IOException e) {
+			log.error("Image fetch failed: " + phone);
+		}
+		return null;
+   }
+	
+	public void deleteUser(String phone) {
+	User userInformation = userDao.fetchUser(phone);
+	if (userInformation != null) {
+		List<String> centers = userInformation.getCenters();
+		if (centers != null && !centers.isEmpty()) {
+			for (String centerId : centers) {
+				Center center = centerDao.fetchCenter(centerId);
+				if (center != null) {
+					
+					List<String> members = center.getMembers();
+					members.remove(phone);
+					centerDao.updateCenterWithUser(centerId, members);
+					
+					String adminPhone = center.getAdminPhone();
+					List<String> userAndAdminsList = new ArrayList<String>();
+					userAndAdminsList.add(phone);
+					userAndAdminsList.add(adminPhone);
+					List<Plan> plans = planDao.fetchUpcomingPlans(userAndAdminsList);
+					
+					if (plans != null && !plans.isEmpty()) {
+						for(Plan plan:plans){
+							if("Y".equals(plan.getCenterPlanFlag())){
+								String planFile = plan.getPlanFile();
+								planFile = StringUtils.replace(planFile, phone+"|Y,", "");
+								planFile = StringUtils.replace(planFile, phone+"|N,", "");
+								planDao.updateRsvp(String.valueOf(plan.getId()), plan.getUserRsvp(), plan.getDocRsvp(), planFile);
+							} else {
+								planDao.deletePlan(String.valueOf(plan.getId()));
+							}
+						}
+					}
+				}
+			}
+		}
+		userDao.deleteUser(phone);
 
-//	
-//	public byte[] fetchUserImage(String phone) {
-//		try {
-//			InputStream image = userDao.fetchUserImage(phone);
-//			if (image != null) {
-//				return IOUtils.toByteArray(image);
-//			}
-//		} catch (IOException e) {
-//			log.error("Image fetch failed: " + phone);
-//		}
-//		return null;
-//	}
-//
-//	public void deleteUser(String phone) {
-//		/*User userInformation = userDao.fetchUser(phone);
-//		if (userInformation != null) {
-//			List<String> groups = userInformation.getGroupNames();
-//			if (groups != null && !groups.isEmpty()) {
-//				for (String groupName : groups) {
-//					Group group = groupDao.fetchGroupInformation(groupName);
-//					if (group != null) {
-//						List<String> planIds = group.getPlanIds();
-//						if (planIds != null && !planIds.isEmpty()) {
-//							for (String planId : planIds) {
-//								Plan plan = planDao.fetchPlanInformation(null,
-//										planId);
-//								if (plan != null) {
-//									List<String> members = plan
-//											.getMemberNames();
-//									members.remove(phone);
-//									if (members.isEmpty()) {
-//										planDao.deletePlan(plan.getName(),
-//												planId);
-//									} else {
-//										planDao.updatePlanWithMember(planId,
-//												members);
-//									}
-//								}
-//							}
-//						}
-//						List<String> members = group.getMembers();
-//						members.remove(phone);
-//
-//						String groupIndex = String.valueOf(group.getId());
-//
-//						if (members.isEmpty()) {
-//							groupDao.deleteGroup(groupName, groupIndex);
-//						} else {
-//							groupDao.updateGroupWithUser(groupName, groupIndex,
-//									members);
-//							if (phone.equals(group.getAdmin())) {
-//								groupDao.updateGroupAdmin(groupName,
-//										groupIndex, members.get(0));
-//							}
-//						}
-//					}
-//				}
-//			}
-//			List<String> pendingGroups = userInformation.getPendingGroupNames();
-//			if (pendingGroups != null && !pendingGroups.isEmpty()) {
-//				for (String groupName : groups) {
-//					Group group = groupDao.fetchGroupInformation(groupName);
-//					List<String> pendingMembers = group.getPendingMembers();
-//					pendingMembers.remove(phone);
-//
-//					groupDao.updateGroupWithPendingMember(groupName,
-//							String.valueOf(group.getId()), pendingMembers);
-//				}
-//			}
-//			userDao.deleteUserInformation(phone);
-//
-//		}*/
-//	}
-//
-//	
+	  }
+	}
+
 
 }

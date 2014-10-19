@@ -337,6 +337,18 @@ public class CenterService {
 		}
 		centerDao.deleteCenter(id);
 	}
+	
+	public byte[] fetchCenterImage(String id) {
+		try {
+			InputStream image = centerDao.fetchCenterImage(id);
+			if (image != null) {
+				return IOUtils.toByteArray(image);
+			}
+		} catch (IOException e) {
+			log.error("Image fetch failed: " + id);
+		}
+		return null;
+   }
 
 	/*
 	 * 
