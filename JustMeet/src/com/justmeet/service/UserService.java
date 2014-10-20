@@ -61,7 +61,8 @@ public class UserService {
 	public User fetchUser(String phone) {
 		User user = userDao.fetchUser(phone);
 		if (user != null) {
-			log.info("User fetched successfully: " + phone);
+			log.info("User fetched successfully: " + phone + " : center phone : " +user.getPrimaryCenterId()
+					+ " : doctor phone : " + user.getPrimaryDoctorId());
 			return user;
 		} else {
 			log.error("User fetch failed: " + phone);

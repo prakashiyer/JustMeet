@@ -55,8 +55,10 @@ public class UserDAO {
 								user.setId(rs.getInt(1));
 								user.setName(rs.getString(2));
 								user.setPhone(rs.getString(3));
-								user.setPrimaryCenterId(rs.getBigDecimal(4).intValue());
-								user.setPrimaryDoctorId(rs.getBigDecimal(5).intValue());
+								user.setPrimaryCenterId(rs.getString(4));
+								user.setPrimaryDoctorId(rs.getString(5));
+								System.out.println("Center : " +rs.getBigDecimal(4).intValue());
+								System.out.println("doctor : " +rs.getBigDecimal(5).intValue());
 								String centers = rs.getString(6);
 								if(!StringUtils.isEmpty(centers)){
 									user.setCenters(Arrays.asList(centers.split(",")));
@@ -155,8 +157,8 @@ public class UserDAO {
 								user.setId(rs.getInt(1));
 								user.setName(rs.getString(2));
 								user.setPhone(rs.getString(3));
-								user.setPrimaryCenterId(rs.getBigDecimal(4).intValue());
-								user.setPrimaryDoctorId(rs.getBigDecimal(5).intValue());
+								user.setPrimaryCenterId(rs.getString(4));
+								user.setPrimaryDoctorId(rs.getString(5));
 								String centers = rs.getString(6);
 								if(!StringUtils.isEmpty(centers)){
 									user.setCenters(Arrays.asList(centers.split(",")));
@@ -202,8 +204,8 @@ public class UserDAO {
 								user.setId(rs.getInt(1));
 								user.setName(rs.getString(2));
 								user.setPhone(rs.getString(3));
-								user.setPrimaryCenterId(rs.getBigDecimal(4).intValue());
-								user.setPrimaryDoctorId(rs.getBigDecimal(5).intValue());
+								user.setPrimaryCenterId(rs.getString(4));
+								user.setPrimaryDoctorId(rs.getString(5));
 								String centers = rs.getString(6);
 								if(!StringUtils.isEmpty(centers)){
 									user.setCenters(Arrays.asList(centers.split(",")));

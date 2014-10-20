@@ -28,9 +28,9 @@ public class User {
 	@XmlElement(name="doctorFlag")
 	private String doctorFlag;
 	@XmlElement(name="primaryCenterId")
-	private int primaryCenterId;
+	private String primaryCenterId;
 	@XmlElement(name="primaryDoctorId")
-	private int primaryDoctorId;
+	private String primaryDoctorId;
 	@XmlElement(name="image")
 	private byte[] image;
 	@XmlElement(name="centers")
@@ -113,19 +113,19 @@ public class User {
 		this.doctorFlag = doctorFlag;
 	}
 
-	public int getPrimaryCenterId() {
+	public String getPrimaryCenterId() {
 		return primaryCenterId;
 	}
 
-	public void setPrimaryCenterId(int primaryCenterId) {
+	public void setPrimaryCenterId(String primaryCenterId) {
 		this.primaryCenterId = primaryCenterId;
 	}
 
-	public int getPrimaryDoctorId() {
+	public String getPrimaryDoctorId() {
 		return primaryDoctorId;
 	}
 
-	public void setPrimaryDoctorId(int primaryDoctorId) {
+	public void setPrimaryDoctorId(String primaryDoctorId) {
 		this.primaryDoctorId = primaryDoctorId;
 	}
 
