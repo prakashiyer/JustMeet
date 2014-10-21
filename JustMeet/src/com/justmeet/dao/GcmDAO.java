@@ -29,6 +29,18 @@ public class GcmDAO {
 		}
 	}
 	
+	public boolean deleteRegId(String phone) {
+		String insertQuery = "DELETE FROM theiyers_whatsThePlan.gcm_details WHERE phone=?";
+		try {
+			jdbcTemplate.update(insertQuery, phone);
+			log.info("Reg Id deleted: " +phone);
+			return true;
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return false;
+		}
+	}
+	
 	public List<String> fetchRegIds(List<String> phoneList) {
 		StringBuffer findQuery = new StringBuffer();
 		findQuery.append("SELECT * FROM theiyers_whatsThePlan.gcm_details where phone in (");

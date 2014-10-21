@@ -28,6 +28,11 @@ public class GcmService {
 		gcmDao.storeRegId(regId, phone);
 	}
 	
+	public void deleteRegId(String phone){
+		log.info("Reg Id storage.");
+		gcmDao.deleteRegId(phone);
+	}
+	
 	public void broadcast(String collapseKey, String userMessage, List<String> phoneList){
 		log.info("Fetching Ids");
 		List<String> androidTargets = gcmDao.fetchRegIds(phoneList);

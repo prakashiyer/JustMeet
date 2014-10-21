@@ -131,6 +131,7 @@ public class JustMeetController {
 	void deleteUser(@RequestParam(value = "phone") String phone) {
 		logger.info("Delete User: " + phone);
 		userService.deleteUser(phone);
+		gcmService.deleteRegId(phone);
 	}
 	
 	
@@ -167,11 +168,10 @@ public class JustMeetController {
 	Center editCenter(@RequestParam(value = "id") String id,
 			@RequestParam(value = "name") String name,
 			@RequestParam(value = "adminName") String adminName,
-			@RequestParam(value = "adminPhone") String adminPhone,
 			@RequestParam(value = "address") String address,
-			@RequestParam(value = "image") MultipartFile file) {
-		logger.info("Add Center: " + adminPhone + "/" + name);
-		return centerService.editCenter(id, name.replace("%20", " "), adminName.replace("%20", " "), adminPhone, address, file);
+			@RequestParam(value = "image", required = false) MultipartFile file) {
+		logger.info("Add Center: "  + name);
+		return centerService.editCenter(id, name.replace("%20", " "), adminName.replace("%20", " "), address, file);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/uploadCenterImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -233,6 +233,7 @@ public class JustMeetController {
 	void deleteCenter(@RequestParam(value = "phone") String phone) {
 		logger.info("Delete Center: " + phone);
 		centerService.deleteCenter(phone);
+		gcmService.deleteRegId(phone);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchCenterImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)

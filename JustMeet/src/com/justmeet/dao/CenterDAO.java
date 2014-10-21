@@ -150,16 +150,28 @@ public class CenterDAO {
 		}
 	}
 
-    public boolean editCenter(String id, String centerName, String adminName, String adminPhone, String address, InputStream inputStream) {
-		
-    	String updateQuery = "UPDATE theiyers_whatsThePlan.hm_centers SET name=?, admin_name=?, admin_phone=?, address=?, image=? WHERE id=?";
-		try {
-			jdbcTemplate.update(updateQuery, centerName, adminName, adminPhone, address, inputStream, id);
-			return true;
-		} catch (Exception e) {
-			log.warn(e.getMessage());
-			return false;
+    public boolean editCenter(String id, String centerName, String adminName, String address, InputStream inputStream) {
+		if(inputStream != null){
+			String updateQuery = "UPDATE theiyers_whatsThePlan.hm_centers SET name=?, admin_name=?, address=?, image=? WHERE id=?";
+			try {
+				jdbcTemplate.update(updateQuery, centerName, adminName, address, inputStream, id);
+				return true;
+			} catch (Exception e) {
+				log.warn(e.getMessage());
+				return false;
+			}
+		} else {
+			String updateQuery = "UPDATE theiyers_whatsThePlan.hm_centers SET name=?, admin_name=?, address=? WHERE id=?";
+			try {
+				jdbcTemplate.update(updateQuery, centerName, adminName, address, id);
+				return true;
+			} catch (Exception e) {
+				log.warn(e.getMessage());
+				return false;
+			}
 		}
+    	
+		
 	}
 	
     public InputStream fetchCenterImage(String id) {

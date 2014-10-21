@@ -91,12 +91,16 @@ public class CenterService {
 	}
 
 	public Center editCenter(String id, String centerName, String adminName,
-			String adminPhone, String address, MultipartFile file) {
+			 String address, MultipartFile file) {
 
 		try {
-			InputStream inputStream = file.getInputStream();
+			InputStream inputStream = null;
+			if(file != null){
+				inputStream = file.getInputStream();
+			}
+			
 			boolean success = centerDao.editCenter(id, centerName, adminName,
-					adminPhone, address, inputStream);
+					 address, inputStream);
 			if (success) {
 				// Fetch current groups
 				return centerDao.fetchCenter(id);
@@ -104,7 +108,7 @@ public class CenterService {
 		} catch (IOException e) {
 			log.error("Image upload failed, center id: " + id);
 		}
-		log.warn("Inputs: " + centerName + "/" + adminPhone);
+		log.warn("Inputs: " + centerName);
 		
 		return new Center();
 	}
