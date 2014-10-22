@@ -42,6 +42,31 @@ public class UserDAO {
 		}
 	}
 
+	public boolean addDoctor(String phone, String primaryDoctorId) {
+		
+		String insertQuery = "UPDATE theiyers_whatsThePlan.hm_user SET primary_doctor_id=? WHERE phone=?";
+		try {
+			jdbcTemplate.update(insertQuery, primaryDoctorId, phone);
+			log.info("Doctor added successfully: " + phone + "/" + primaryDoctorId);
+			return true;
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return false;
+		}
+	}
+	
+public boolean addCenter(String phone, String primaryCenerId) {
+		
+		String insertQuery = "UPDATE theiyers_whatsThePlan.hm_user SET primary_center_id=? WHERE phone=?";
+		try {
+			jdbcTemplate.update(insertQuery, primaryCenerId, phone);
+			log.info("Center added successfully: " + phone + "/" + primaryCenerId);
+			return true;
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return false;
+		}
+	}
 	public User fetchUser(String phone) {
 		String findQUery = "SELECT * FROM theiyers_whatsThePlan.hm_user where phone = ?";
 		try {

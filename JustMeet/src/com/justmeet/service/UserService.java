@@ -107,6 +107,27 @@ public class UserService {
 			return new User();
 		}
 	}
+	public User addDoctor(String phone, String primaryDoctorId) {
+		userDao.addDoctor(phone, primaryDoctorId);
+		User user = userDao.fetchUser(phone);
+		if (user != null) {
+			log.info("Doctor added successfully: " + phone + "/" + primaryDoctorId);
+			return user;
+		} else {
+			return new User();
+		}
+	}
+	
+	public User addCenter(String phone, String primaryCenterId) {
+		userDao.addCenter(phone, primaryCenterId);
+		User user = userDao.fetchUser(phone);
+		if (user != null) {
+			log.info("Doctor added successfully: " + phone + "/" + primaryCenterId);
+			return user;
+		} else {
+			return new User();
+		}
+	}
 	
 	public UserList fetchDoctorsList(String phoneList) {
 		List<User> users = userDao.fetchDocList(phoneList);

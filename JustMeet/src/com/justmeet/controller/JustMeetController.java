@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.justmeet.dao.CenterDAO;
+import com.justmeet.dao.UserDAO;
 import com.justmeet.entities.Center;
 import com.justmeet.entities.CenterList;
 import com.justmeet.entities.Plan;
@@ -33,6 +35,10 @@ public class JustMeetController {
 	private static final Logger logger = Logger
 			.getLogger(JustMeetController.class);
 
+	@Autowired
+	private UserDAO userDao;
+	@Autowired
+	private CenterDAO centerDao;
 	@Autowired
 	private GcmService gcmService;
 
@@ -95,6 +101,22 @@ public class JustMeetController {
 		logger.info("Edit User addition: " + phone + "/" + name);
 		return userService.editUser(name.replace("%20", " "), phone, bloodGroup, dob, sex, address,
 				doctorFlag);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/addDoctor")
+	public @ResponseBody
+	User addDoctor(@RequestParam(value = "phone") String phone,
+			@RequestParam(value = "primaryDoctorId") String primaryDoctorId) {
+		logger.info("Edit User addition: " + phone + "/" + primaryDoctorId);
+		return userService.addDoctor(phone, primaryDoctorId);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/addCenter")
+	public @ResponseBody
+	User addCenter(@RequestParam(value = "phone") String phone,
+			@RequestParam(value = "primaryCenterId") String primaryCenterId) {
+		logger.info("Edit User addition: " + phone + "/" + primaryCenterId);
+		return userService.addCenter(phone, primaryCenterId);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchUser")
@@ -171,6 +193,9 @@ public class JustMeetController {
 			@RequestParam(value = "address") String address,
 			@RequestParam(value = "image", required = false) MultipartFile file) {
 		logger.info("Add Center: "  + name);
+		Center center = centerService.fetchCenter(id);
+		List<String> centerMembers = center.getMembers();
+		gcmService.broadcast("Health Meet", "Center : " +name+ " has been edited.", centerMembers);
 		return centerService.editCenter(id, name.replace("%20", " "), adminName.replace("%20", " "), address, file);
 	}
 	
@@ -202,6 +227,12 @@ public class JustMeetController {
 	public @ResponseBody
 	Center joinCenter(@RequestParam(value = "id") String id,
 			@RequestParam(value = "phone") String phone) {
+		List<String> gcmList = new ArrayList<String>();
+		User user = userDao.fetchUser(phone);
+		String userName = user.getName();
+		Center center = centerDao.fetchCenter(id);
+		gcmList.add(center.getAdminPhone());
+		gcmService.broadcast("Health Meet", "Member : " +userName+ " has joined the center : "+center.getName(), gcmList);
 		return centerService.joinCenter(id, phone);
 
 	}
@@ -210,8 +241,14 @@ public class JustMeetController {
 	public @ResponseBody
 	void leaveCenter(@RequestParam(value = "phone") String phone,
 			@RequestParam(value = "id") String id) {
+		List<String> gcmList = new ArrayList<String>();
+		Center center = centerService.fetchCenter(id);
+		User user = userDao.fetchUser(phone);
+		gcmList.add(center.getAdminPhone());
 		logger.info("Leave Center: " + phone + "/" + id);
 		centerService.leaveCenter(id, phone);
+		gcmService.broadcast("Health Meet", user.getName() + " - " +user.getPhone() +" - left the center '"
+				+ center.getAdminName() + "'", gcmList);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchUserCenters")
