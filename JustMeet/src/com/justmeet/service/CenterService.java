@@ -186,7 +186,7 @@ public class CenterService {
 				List<String> members = new ArrayList<String>();
 				List<String> centerMembers = center.getMembers();
 				
-				if (centerMembers != null) {
+				if (centerMembers != null && !centerMembers.isEmpty()) {
 					members.addAll(centerMembers);
 					members.remove(phone);
 				}
@@ -197,7 +197,7 @@ public class CenterService {
 				if (updateSuccess) {
 					List<String> centers = new ArrayList<String>();
 					List<String> userCenters = user.getCenters();
-					if (userCenters != null) {
+					if (userCenters != null && !userCenters.isEmpty()) {
 						centers.addAll(userCenters);
 						centers.remove(id);
 					}
@@ -243,7 +243,7 @@ public class CenterService {
 			if (center != null) {
 				List<String> members = new ArrayList<String>();
 				List<String> centerMembers = center.getMembers();
-				if (centerMembers != null) {
+				if (centerMembers != null && !centerMembers.isEmpty()) {
 					members.addAll(centerMembers);
 				}
 				members.add(phone);
@@ -253,7 +253,7 @@ public class CenterService {
 				if (updateSuccess) {
 					List<String> centers = new ArrayList<String>();
 					List<String> userCenters = user.getCenters();
-					if (userCenters != null) {
+					if (userCenters != null && !userCenters.isEmpty()) {
 						centers.addAll(userCenters);
 					}
 					centers.add(id);

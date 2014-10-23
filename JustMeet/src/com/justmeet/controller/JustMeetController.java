@@ -359,7 +359,7 @@ public class JustMeetController {
 		if("Y".equals(centerPlanFlag)){
 			Center center = centerService.fetchCenterForAdmin(userPhone);
 			List<String> centerMembers = center.getMembers();
-			if(!centerMembers.isEmpty()){
+			if(centerMembers != null && !centerMembers.isEmpty()){
 				gcmList.addAll(centerMembers);
 				centerPlanFile = StringUtils.collectionToDelimitedString(centerMembers, "|N,");
 			}
@@ -403,7 +403,7 @@ public class JustMeetController {
 		if("Y".equals(centerFlag)){
 			Center center = centerService.fetchCenterForAdmin(phone);
 			List<String> centerMembers = center.getMembers();
-			if(!centerMembers.isEmpty()){
+			if(centerMembers != null && !centerMembers.isEmpty()){
 				gcmList.addAll(centerMembers);
 			}
 			if("Y".equals(cancelFlag)){
