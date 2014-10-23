@@ -74,10 +74,15 @@ private static final Log log = LogFactory.getLog(PlanService.class);
 		if(plan != null){
 			if("Y".equals(plan.getCenterPlanFlag())){
 				Center center = centerDao.fetchCenter(plan.getCenterId());
-				plan.setCenterName(center.getName());
+				if(center != null) {
+					plan.setCenterName(center.getName());
+				}				
 			} else {
 				User user = userDao.fetchUser(plan.getDocPhone());
-				plan.setDocName(user.getName());
+				if(user != null){
+					plan.setDocName(user.getName());
+				}
+				
 			}
 			return plan;
 		} 
