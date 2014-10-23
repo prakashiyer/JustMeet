@@ -362,6 +362,7 @@ public class JustMeetController {
 			if(centerMembers != null && !centerMembers.isEmpty()){
 				gcmList.addAll(centerMembers);
 				centerPlanFile = StringUtils.collectionToDelimitedString(centerMembers, "|N,");
+				centerPlanFile = centerPlanFile +"|N";
 			}
 			centerId = String.valueOf(center.getId());
 		}
