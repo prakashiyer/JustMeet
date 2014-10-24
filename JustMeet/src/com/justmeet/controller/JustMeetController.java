@@ -195,7 +195,9 @@ public class JustMeetController {
 		logger.info("Add Center: "  + name);
 		Center center = centerService.fetchCenter(id);
 		List<String> centerMembers = center.getMembers();
-		gcmService.broadcast("Health Meet", "Center : " +name+ " has been edited.", centerMembers);
+		if(centerMembers != null && !centerMembers.isEmpty()){
+			gcmService.broadcast("Health Meet", "Center edited: " +name+ ","+center.getAdminPhone(), centerMembers);
+		}		
 		return centerService.editCenter(id, name.replace("%20", " "), adminName.replace("%20", " "), address, file);
 	}
 	
@@ -232,7 +234,7 @@ public class JustMeetController {
 		String userName = user.getName();
 		Center center = centerDao.fetchCenter(id);
 		gcmList.add(center.getAdminPhone());
-		gcmService.broadcast("Health Meet", "Member : " +userName+ " has joined the center : "+center.getName(), gcmList);
+		gcmService.broadcast("Health Meet", "Member : " +userName+ " has joined center: "+center.getName(), gcmList);
 		return centerService.joinCenter(id, phone);
 
 	}
@@ -247,8 +249,8 @@ public class JustMeetController {
 		gcmList.add(center.getAdminPhone());
 		logger.info("Leave Center: " + phone + "/" + id);
 		centerService.leaveCenter(id, phone);
-		gcmService.broadcast("Health Meet", user.getName() + " - " +user.getPhone() +" - left the center '"
-				+ center.getAdminName() + "'", gcmList);
+		gcmService.broadcast("Health Meet", user.getName() + " has left center:"
+				+ center.getName() + "'", gcmList);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchUserCenters")
@@ -378,7 +380,7 @@ public class JustMeetController {
 		if (plan != null) {
 
 			gcmService.broadcast("Health Meet",
-					"A new plan has been added '" + title + "'", gcmList);
+					"A new appointment: " + title + " has been created,"+plan.getId(), gcmList);
 			logger.info("Plan created : " + title);
 			return plan;
 		}
@@ -409,12 +411,12 @@ public class JustMeetController {
 			}
 			if("Y".equals(cancelFlag)){
 				gcmService.broadcast("Health Meet",
-						"Plan '" + title + "' has been cancelled", gcmList);
+						"Appointment: " + title + " has been cancelled", gcmList);
 				planService.deletePlan(id);
 				return plan;
 			} else {
 				gcmService.broadcast("Health Meet",
-						"Plan '" + title + "' has been edited", gcmList);
+						"Appointment:" + title + " has been edited,"+id, gcmList);
 				return planService.editPlan(id, title, planDate, planTime, endDate, endTime);
 			}
 			
@@ -423,12 +425,12 @@ public class JustMeetController {
 			gcmList.add(plan.getDocPhone());
 			if("Y".equals(cancelFlag)){
 				gcmService.broadcast("Health Meet",
-						"Plan '" + title + "' has been cancelled", gcmList);
+						"Appointment: " + title + " has been cancelled", gcmList);
 				planService.deletePlan(id);
 				return plan;
 			} else {
 				gcmService.broadcast("Health Meet",
-						"Plan '" + title + "' has been edited", gcmList);
+						"Appointment: " + title + " has been edited,"+id, gcmList);
 				return planService.editPlan(id, title, planDate, planTime, endDate, endTime);
 			}
 		}
@@ -452,10 +454,10 @@ public class JustMeetController {
 			gcmList.add(plan.getUserPhone());
 			gcmList.add(phone);
 			if("Y".equals(rsvp)) {
-				gcmService.broadcast("Health Meet", "Member "+userName+" has accepted appointment titled: "+plan.getTitle(), gcmList);
+				gcmService.broadcast("Health Meet", "Member "+userName+" has accepted appointment titled: "+plan.getTitle()+","+id, gcmList);
 				allMembersRsvps = allMembersRsvps.replace(phone+"|N", memberRsvp);
 			} else if("N".equals(rsvp)) {
-				gcmService.broadcast("Health Meet", "Member "+userName+" has declined appointment titled: "+plan.getTitle(), gcmList);
+				gcmService.broadcast("Health Meet", "Member "+userName+" has declined appointment titled: "+plan.getTitle()+","+id, gcmList);
 				allMembersRsvps = allMembersRsvps.replace(phone+"|Y", memberRsvp);
 			}
 			return planService.updateRsvp(id, plan.getUserRsvp(), plan.getDocRsvp(), allMembersRsvps);
@@ -463,17 +465,17 @@ public class JustMeetController {
 			gcmList.add(plan.getUserPhone());
 			gcmList.add(plan.getDocPhone());
 			if("Y".equals(rsvp)) {
-				gcmService.broadcast("Health Meet", "Doctor "+userName+" has accepted appointment titled: "+plan.getTitle(), gcmList);
+				gcmService.broadcast("Health Meet", "Doctor "+userName+" has accepted appointment titled: "+plan.getTitle()+","+id, gcmList);
 			} else {
-				gcmService.broadcast("Health Meet", "Doctor "+userName+" has declined appointment titled: "+plan.getTitle(), gcmList);
+				gcmService.broadcast("Health Meet", "Doctor "+userName+" has declined appointment titled: "+plan.getTitle()+","+id, gcmList);
 			}
 			return planService.updateRsvp(id, plan.getUserRsvp(), rsvp, plan.getPlanFile());
 		} else {
 			if("Y".equals(rsvp)) {
-				gcmService.broadcast("Health Meet", userName+" has accepted appointment titled: "+plan.getTitle(), gcmList);
+				gcmService.broadcast("Health Meet", userName+" has accepted appointment titled: "+plan.getTitle()+","+id, gcmList);
 			} else {
 				planService.deletePlan(String.valueOf(plan.getId()));
-				gcmService.broadcast("Health Meet", userName+" has declined appointment titled: "+plan.getTitle(), gcmList);
+				gcmService.broadcast("Health Meet", userName+" has declined appointment titled: "+plan.getTitle()+","+id, gcmList);
 				return plan;
 			}
 			
