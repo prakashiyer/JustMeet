@@ -77,8 +77,17 @@ public class JustMeetController {
 			@RequestParam(value = "primaryCenterId", required = false) String primaryCenterId,
 			@RequestParam(value = "primaryDoctorId", required = false) String primaryDoctorId) {
 		logger.info("New User addition: " + phone + "/" + name);
-		return this.userService.addUser(name.replace("%20", " "), phone, bloodGroup, dob, sex,
+		User user = userService.addUser(name.replace("%20", " "), phone, bloodGroup, dob, sex,
 				address, doctorFlag, primaryCenterId, primaryDoctorId, "");
+		
+		if(primaryCenterId != null && !primaryCenterId.isEmpty() && !primaryCenterId.equals("0")){
+			Center center = centerService.fetchCenterForAdmin(primaryCenterId);
+			if(center != null){
+				centerService.joinCenter(String.valueOf(center.getId()), phone);
+			}
+			
+		}
+		return user;
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/uploadUserImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
