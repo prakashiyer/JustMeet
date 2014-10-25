@@ -103,17 +103,17 @@ public class JustMeetController {
 				doctorFlag);
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, value = "/addDoctor")
+	@RequestMapping(method = RequestMethod.GET, value = "/addUserDoctor")
 	public @ResponseBody
-	User addDoctor(@RequestParam(value = "phone") String phone,
+	User addUserDoctor(@RequestParam(value = "phone") String phone,
 			@RequestParam(value = "primaryDoctorId") String primaryDoctorId) {
 		logger.info("Edit User addition: " + phone + "/" + primaryDoctorId);
 		return userService.addDoctor(phone, primaryDoctorId);
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, value = "/addCenter")
+	@RequestMapping(method = RequestMethod.GET, value = "/addUserCenter")
 	public @ResponseBody
-	User addCenter(@RequestParam(value = "phone") String phone,
+	User addUserCenter(@RequestParam(value = "phone") String phone,
 			@RequestParam(value = "primaryCenterId") String primaryCenterId) {
 		logger.info("Edit User addition: " + phone + "/" + primaryCenterId);
 		return userService.addCenter(phone, primaryCenterId);

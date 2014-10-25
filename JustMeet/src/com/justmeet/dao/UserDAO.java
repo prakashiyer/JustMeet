@@ -132,7 +132,9 @@ public boolean addCenter(String phone, String primaryCenerId) {
 	}
 	
 	public boolean addUserImage(String phone, InputStream inputStream) {
+		
 		log.info("User Image upload in DAO");
+		
 		String updateQuery = "UPDATE theiyers_whatsThePlan.hm_user SET image=? WHERE phone=?";
 		try {
 			jdbcTemplate.update(updateQuery, inputStream, phone);
