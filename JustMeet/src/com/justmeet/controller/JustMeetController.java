@@ -78,7 +78,7 @@ public class JustMeetController {
 			@RequestParam(value = "primaryDoctorId", required = false) String primaryDoctorId) {
 		logger.info("New User addition: " + phone + "/" + name);
 		User user = userService.addUser(name.replace("%20", " "), phone, bloodGroup, dob, sex,
-				address, doctorFlag, primaryCenterId, primaryDoctorId, "");
+				address.replace("%20", " "), doctorFlag, primaryCenterId, primaryDoctorId, "");
 		
 		if(primaryCenterId != null && !primaryCenterId.isEmpty() && !primaryCenterId.equals("0")){
 			Center center = centerService.fetchCenterForAdmin(primaryCenterId);
@@ -108,7 +108,7 @@ public class JustMeetController {
 			@RequestParam(value = "address") String address,
 			@RequestParam(value = "doctorFlag") String doctorFlag) {
 		logger.info("Edit User addition: " + phone + "/" + name);
-		return userService.editUser(name.replace("%20", " "), phone, bloodGroup, dob, sex, address,
+		return userService.editUser(name.replace("%20", " "), phone, bloodGroup, dob, sex, address.replace("%20", " "),
 				doctorFlag);
 	}
 	
@@ -177,7 +177,7 @@ public class JustMeetController {
 			@RequestParam(value = "members") String members,
 			@RequestParam(value = "image") MultipartFile file) {
 		logger.info("Add Center: " + adminPhone + "/" + name);
-		return centerService.addCenter(name.replace("%20", " "), adminName.replace("%20", " "), adminPhone, address, members, file);
+		return centerService.addCenter(name.replace("%20", " "), adminName.replace("%20", " "), adminPhone, address.replace("%20", " "), members, file);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchCenter")
@@ -207,7 +207,7 @@ public class JustMeetController {
 		if(centerMembers != null && !centerMembers.isEmpty()){
 			gcmService.broadcast("Health Meet", "Center edited: " +name+ ","+center.getAdminPhone(), centerMembers);
 		}		
-		return centerService.editCenter(id, name.replace("%20", " "), adminName.replace("%20", " "), address, file);
+		return centerService.editCenter(id, name.replace("%20", " "), adminName.replace("%20", " "), address.replace("%20", " "), file);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/uploadCenterImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -384,13 +384,13 @@ public class JustMeetController {
 			gcmList.add(docPhone);
 		}
 		
-		Plan plan = planService.newPlan(title, planDate, planTime,
+		Plan plan = planService.newPlan(title.replace("%20", " "), planDate, planTime,
 				userPhone, userRsvp, docPhone, docRsvp, centerPlanFlag, endDate, endTime, centerId, centerPlanFile);
 		if (plan != null) {
 
 			gcmService.broadcast("Health Meet",
-					"A new appointment: " + title + " has been created,"+plan.getId(), gcmList);
-			logger.info("Plan created : " + title);
+					"A new appointment: " + title.replace("%20", " ") + " has been created,"+plan.getId(), gcmList);
+			logger.info("Plan created : " + title.replace("%20", " "));
 			return plan;
 		}
 		logger.info("Plan creation failed");
@@ -420,13 +420,13 @@ public class JustMeetController {
 			}
 			if("Y".equals(cancelFlag)){
 				gcmService.broadcast("Health Meet",
-						"Appointment: " + title + " has been cancelled", gcmList);
+						"Appointment: " + title.replace("%20", " ") + " has been cancelled", gcmList);
 				planService.deletePlan(id);
 				return plan;
 			} else {
 				gcmService.broadcast("Health Meet",
-						"Appointment:" + title + " has been edited,"+id, gcmList);
-				return planService.editPlan(id, title, planDate, planTime, endDate, endTime);
+						"Appointment:" + title.replace("%20", " ") + " has been edited,"+id, gcmList);
+				return planService.editPlan(id, title.replace("%20", " "), planDate, planTime, endDate, endTime);
 			}
 			
 		} else {
@@ -434,13 +434,13 @@ public class JustMeetController {
 			gcmList.add(plan.getDocPhone());
 			if("Y".equals(cancelFlag)){
 				gcmService.broadcast("Health Meet",
-						"Appointment: " + title + " has been cancelled", gcmList);
+						"Appointment: " + title.replace("%20", " ") + " has been cancelled", gcmList);
 				planService.deletePlan(id);
 				return plan;
 			} else {
 				gcmService.broadcast("Health Meet",
-						"Appointment: " + title + " has been edited,"+id, gcmList);
-				return planService.editPlan(id, title, planDate, planTime, endDate, endTime);
+						"Appointment: " + title.replace("%20", " ") + " has been edited,"+id, gcmList);
+				return planService.editPlan(id, title.replace("%20", " "), planDate, planTime, endDate, endTime);
 			}
 		}
 	}

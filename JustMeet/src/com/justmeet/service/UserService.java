@@ -177,8 +177,12 @@ public class UserService {
 				if (center != null) {
 					
 					List<String> members = center.getMembers();
-					members.remove(phone);
-					centerDao.updateCenterWithUser(centerId, members);
+					List<String> centerMembersList = new ArrayList<String>();
+					if(members != null && !members.isEmpty()){
+						centerMembersList.addAll(members);
+						centerMembersList.remove(phone);
+						centerDao.updateCenterWithUser(centerId, centerMembersList);
+					}
 					
 					String adminPhone = center.getAdminPhone();
 					List<String> userAndAdminsList = new ArrayList<String>();

@@ -90,7 +90,7 @@ public class CenterDAO {
 								center.setId(rs.getInt(1));
 								center.setName(rs.getString(2));
 								String members = rs.getString(3);
-								if(members != null){
+								if(members != null && !members.isEmpty()){
 									center.setMembers(Arrays.asList(members.split(",")));
 								}								
 								center.setAdminName(rs.getString(4));
@@ -122,7 +122,7 @@ public class CenterDAO {
 								center.setId(rs.getInt(1));
 								center.setName(rs.getString(2));
 								String members = rs.getString(3);
-								if(members != null){
+								if(members != null && !members.isEmpty()){
 									center.setMembers(Arrays.asList(members.split(",")));
 								}								
 								center.setAdminName(rs.getString(4));
@@ -209,7 +209,7 @@ public class CenterDAO {
 								center.setId(rs.getInt(1));
 								center.setName(rs.getString(2));
 								String members = rs.getString(3);
-								if(members != null){
+								if(members != null && !members.isEmpty()){
 									center.setMembers(Arrays.asList(members.split(",")));
 								}
 								center.setAdminName(rs.getString(4));
@@ -243,7 +243,7 @@ public class CenterDAO {
 								center.setId(rs.getInt(1));
 								center.setName(rs.getString(2));
 								String members = rs.getString(3);
-								if(members != null){
+								if(members != null && !members.isEmpty()){
 									center.setMembers(Arrays.asList(members.split(",")));
 								}
 								center.setAdminName(rs.getString(4));
@@ -291,7 +291,7 @@ public class CenterDAO {
 								center.setId(rs.getInt(1));
 								center.setName(rs.getString(2));
 								String members = rs.getString(3);
-								if(members != null){
+								if(members != null && !members.isEmpty()){
 									center.setMembers(Arrays.asList(members.split(",")));
 								}
 								center.setAdminName(rs.getString(4));
