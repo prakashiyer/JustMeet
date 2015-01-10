@@ -35,7 +35,7 @@ public class UserService {
 		userDao.addUser(name, phone);
 		User user = userDao.fetchUser(phone);
 		if (user != null) {
-			log.info("User added successfully: " + phone + "/" + name);
+			log.info("User added successfully : " + phone + "/" + name);
 			return user;
 		} else {
 			log.warn("User addition failed: " + phone + "/" + name);
