@@ -17,12 +17,6 @@ public class Group
     private String name;
     @XmlElement(name="members")
     private List<String> members;
-    @XmlElement(name="planNames")
-    private List<String>  planNames;
-    @XmlElement(name="planIds")
-    private List<String>  planIds;
-    @XmlElement(name="pendingMembers")
-    private List<String> pendingMembers;
     @XmlElement(name="admin")
     private String admin;
     @XmlElement(name="image")
@@ -60,36 +54,6 @@ public class Group
     public void setMembers(List<String> members)
     {
         this.members = members;
-    }
-
-    public List<String> getPlanNames()
-    {
-        return planNames;
-    }
-
-    public void setPlanNames(List<String> planNames)
-    {
-        this.planNames = planNames;
-    }
-    
-    public List<String> getPlanIds()
-    {
-        return planIds;
-    }
-
-    public void setPlanIds(List<String> planIds)
-    {
-        this.planIds = planIds;
-    }
-
-    public List<String> getPendingMembers()
-    {
-        return pendingMembers;
-    }
-
-    public void setPendingMembers(List<String> pendingMembers)
-    {
-        this.pendingMembers = pendingMembers;
     }
 
     public String getAdmin()

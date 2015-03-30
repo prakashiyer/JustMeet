@@ -8,6 +8,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.justmeet.dao.GroupDAO;
@@ -70,6 +71,20 @@ public class UserService {
 
 		return null;
 	}
+	
+	public User editUser(String phone, MultipartFile file, String name) {
+		try {
+			InputStream inputStream = file.getInputStream();
+			boolean success = userDao.editUser(phone, inputStream, name);
+			if (success) {
+				return userDao.fetchUser(phone);
+			}
+		} catch (IOException e) {
+			log.error("Image Upload failed: " + phone);
+		}
+
+		return null;
+	}
 
 	public byte[] fetchUserImage(String phone) {
 		try {
@@ -87,59 +102,29 @@ public class UserService {
 		User userInformation = userDao
 				.fetchUser(phone);
 		if (userInformation != null) {
-			List<String> groups = userInformation.getGroupNames();
+			List<String> groups = userInformation.getGroupIds();
 			if (groups != null && !groups.isEmpty()) {
 				for (String groupName : groups) {
 					Group group = groupDao
 							.fetchGroupInformation(groupName);
 					if (group != null) {
-						List<String> planIds = group.getPlanIds();
-						if (planIds != null && !planIds.isEmpty()) {
-							for (String planId : planIds) {
-								Plan plan = planDao
-										.fetchPlanInformation(null, planId);
-								if (plan != null) {
-									List<String> members = plan
-											.getMemberNames();
-									members.remove(phone);
-									if (members.isEmpty()) {
-										planDao.deletePlan(plan.getName(), planId);
-									} else {
-										planDao.updatePlanWithMember(
-												planId, members);
-									}
-								}
-							}
-						}
 						List<String> members = group.getMembers();
 						members.remove(phone);
 						
 						String groupIndex = String.valueOf(group.getId());
 
 						if (members.isEmpty()) {
-							groupDao.deleteGroup(groupName, groupIndex);
+							groupDao.deleteGroup(groupIndex);
 						} else {
-							groupDao.updateGroupWithUser(
-									groupName, groupIndex, members);
+							groupDao.updateGroupWithUser(groupIndex, members);
 							if (phone.equals(group.getAdmin())) {
-								groupDao.updateGroupAdmin(groupName, groupIndex,
+								groupDao.updateGroupAdmin(groupIndex,
 										members.get(0));
 							}
 						}
 					}
 				}
-			}
-			List<String> pendingGroups = userInformation.getPendingGroupNames();
-			if (pendingGroups != null && !pendingGroups.isEmpty()) {
-				for (String groupName : groups) {
-					Group group = groupDao
-							.fetchGroupInformation(groupName);
-					List<String> pendingMembers = group.getPendingMembers();
-					pendingMembers.remove(phone);
-
-					groupDao.updateGroupWithPendingMember(groupName, String.valueOf(group.getId()),
-							pendingMembers);
-				}
+				//TODO delete user from group Plans
 			}
 			userDao.deleteUserInformation(phone);
 			
@@ -159,5 +144,17 @@ public class UserService {
 			return new UserList();
 		}
 	}
+
+	public UserList fetchPlanUsers(String planId) {
+		Plan plan = planDao.fetchPlanInformation(planId);
+		List<String> members = plan.getMembersAttending();
+		if(members != null && !members.isEmpty()){
+			String phoneList = StringUtils.collectionToCommaDelimitedString(members);
+			return fetchUserList(phoneList);
+		}
+		return new UserList();
+	}
+
+	
 	
 }

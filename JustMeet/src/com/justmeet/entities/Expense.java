@@ -13,10 +13,8 @@ public class Expense {
 	private int id;
 	@XmlElement(name="phone")
 	private String phone;
-	@XmlElement(name="plan")
-	private String plan;
-	@XmlElement(name="group")
-	private String group;
+	@XmlElement(name="planId")
+	private String planId;
 	@XmlElement(name="title")
 	private String title;
 	@XmlElement(name="value")
@@ -45,20 +43,12 @@ public class Expense {
 		this.phone = phone;
 	}
 
-	public String getPlan() {
-		return plan;
+	public String getPlanId() {
+		return planId;
 	}
 
-	public void setPlan(String plan) {
-		this.plan = plan;
-	}
-
-	public String getGroup() {
-		return group;
-	}
-
-	public void setGroup(String group) {
-		this.group = group;
+	public void setPlanId(String planId) {
+		this.planId = planId;
 	}
 
 	public String getTitle() {

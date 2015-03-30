@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.justmeet.entities.Expense;
 import com.justmeet.entities.ExpenseList;
 import com.justmeet.entities.ExpenseReport;
 import com.justmeet.entities.Group;
@@ -62,25 +63,46 @@ public class JustMeetController {
 	public @ResponseBody
 	User addUser(@RequestParam(value = "name") String name,
 			@RequestParam(value = "phone") String phone) {
-		System.out.println("New User addition: " + phone + "/" + name);
 		logger.info("New User addition: " + phone + "/" + name);
-		return this.userService.addUser(name, phone);
+		return userService.addUser(name, phone);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchUser")
 	public @ResponseBody
 	User fetchUser(@RequestParam(value = "phone") String phone) {
 		logger.info("Fetch User: " + phone);
-		return this.userService.fetchUser(phone);
+		return userService.fetchUser(phone);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/addGroup", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
 	public @ResponseBody
-	Group addGroup(@RequestParam(value = "groupName") String groupName,
+	Group addGroup(@RequestParam(value = "name") String groupName,
 			@RequestParam(value = "phone") String phone,
+			@RequestParam(value = "members") String members,
 			@RequestParam(value = "image") MultipartFile file) {
 		logger.info("Add Group: " + phone + "/" + groupName);
-		return this.groupService.addGroup(groupName, phone, file);
+		Group group= groupService.addGroup(groupName.replace("%20", " "), phone, members, file);
+		gcmService.broadcast("Just Meet", "A new group: " +group.getName()+" has been created.,NewGroup,"+group.getId(), group.getMembers());
+		return group;
+	}
+	
+	@RequestMapping(method = RequestMethod.POST, value = "/addMembers")
+	public @ResponseBody
+	Group addMembers(@RequestParam(value = "groupId") String groupId,
+			@RequestParam(value = "members") String members) {
+		logger.info("Add Group members: "  + members);
+		Group group= groupService.updateMembers(groupId, members);
+		gcmService.broadcast("Just Meet", "New members have been added to Group: " +group.getName()+".,NewMembers,"+group.getId(), group.getMembers());
+		return group;
+	}
+	
+	@RequestMapping(method = RequestMethod.POST, value = "/editGroup", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
+	public @ResponseBody
+	Group editGroup(@RequestParam(value = "groupId") String groupId,
+			@RequestParam(value = "name") String groupName,
+			@RequestParam(value = "image") MultipartFile file) {
+		logger.info("Edit Group: "  + groupName);
+		return groupService.editGroup(groupId, groupName.replace("%20", " "), file);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchUpcomingPlans")
@@ -88,7 +110,6 @@ public class JustMeetController {
 	PlanList fetchUpcomingPlans(@RequestParam(value = "phone") String phone) {
 		logger.info("Fetch Upcoming plans for " + phone);
 		return planService.fetchUpcomingPlans(phone);
-
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/uploadUserImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -97,6 +118,15 @@ public class JustMeetController {
 			@RequestParam(value = "image") MultipartFile file) {
 		logger.info("Image upload started.");
 		return userService.uploadUserImage(phone, file);
+	}
+	
+	@RequestMapping(method = RequestMethod.POST, value = "/editUser", headers = "Accept=*/*")
+	public @ResponseBody
+	User editUser(@RequestParam(value = "phone") String phone,
+			@RequestParam(value = "image") MultipartFile file,
+			@RequestParam(value = "name") String name) {
+		logger.info("Edit user.");
+		return userService.editUser(phone, file, name);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchUserImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -109,19 +139,17 @@ public class JustMeetController {
 	@RequestMapping(method = RequestMethod.POST, value = "/uploadGroupImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
 	public @ResponseBody
 	byte[] uploadGroupImage(
-			@RequestParam(value = "groupName") String groupName,
 			@RequestParam(value = "image") MultipartFile file,
 			@RequestParam(value = "groupIndex") String groupIndex) {
 		logger.info("Image upload started.");
-		return groupService.uploadGroupImage(groupName, file, groupIndex);
+		return groupService.uploadGroupImage(file, groupIndex);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchGroupImage", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
 	public @ResponseBody
-	byte[] fetchGroupImage(@RequestParam(value = "groupName") String groupName,
-			@RequestParam(value = "groupIndex") String groupIndex) {
-		logger.info("Group Image fetch started: "+groupName);
-		return groupService.fetchGroupImage(groupName, groupIndex);
+	byte[] fetchGroupImage(@RequestParam(value = "groupIndex") String groupIndex) {
+		logger.info("Group Image fetch started: "+groupIndex);
+		return groupService.fetchGroupImage(groupIndex);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/searchGroup")
@@ -140,88 +168,68 @@ public class JustMeetController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchGroupPlans")
 	public @ResponseBody
-	PlanList fetchGroupPlans(@RequestParam(value = "groupName") String groupName,
-			@RequestParam(value = "groupIndex") String groupIndex) {
-		logger.info("Fetching plans for the group: "+groupName);
-		return planService.fetchGroupPlans(groupName, groupIndex);
+	PlanList fetchGroupPlans(@RequestParam(value = "groupIndex") String groupIndex) {
+		logger.info("Fetching plans for the group: "+groupIndex);
+		return planService.fetchGroupPlans(groupIndex);
 	}
 
-	/*@RequestMapping(method = RequestMethod.GET, value = "/addPlan")
-	public @ResponseBody
-	Plan addPlan(@RequestParam(value = "name") String planName,
-			@RequestParam(value = "phone") String phone,
-			@RequestParam(value = "date") String planDate,
-			@RequestParam(value = "time") String planTime,
-			@RequestParam(value = "endDate") String endDate,
-			@RequestParam(value = "endTime") String endTime,
-			@RequestParam(value = "location") String planLocation,
-			@RequestParam(value = "groupName") String groupName,
-			@RequestParam(value = "creator") String creator) {
-		logger.info("Plan addition for " +groupName);
-		Plan plan = planService.addPlan(planName, phone, planDate, planTime,
-				planLocation, groupName, creator, endDate, endTime);
-		if(plan != null){
-			Group group = this.groupService.searchGroup(groupName);
-			List<String> phoneList = group.getMembers();
-			this.gcmService.broadcast("Just Meet", "A new plan has been added '"+ planName+"' to '"+groupName+"'", phoneList);
-			logger.info("Plan created : "+ planName);
-			return plan;
-		}
-		logger.info("Plan creation failed");
-		return new Plan();
-	}*/
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchPlan")
 	public @ResponseBody
-	Plan fetchPlan(@RequestParam(value = "planName") String planName,
-			@RequestParam(value = "planIndex") String planIndex) {
-		logger.info("Plan fetch : "+ planName);
-		return planService.fetchPlan(planName, planIndex);
+	Plan fetchPlan(@RequestParam(value = "planIndex") String planIndex) {
+		return planService.fetchPlan(planIndex);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/rsvpPlan")
 	public @ResponseBody
 	Plan rsvpPlan(@RequestParam(value = "phone") String phone,
-			@RequestParam(value = "planName") String planName,
 			@RequestParam(value = "planIndex") String planIndex,
-			@RequestParam(value = "planIndex") String groupIndex,
 			@RequestParam(value = "rsvp") String rsvp) {
-		Plan plan = planService.fetchPlan(planName, planIndex);
-		String phoneName = null;
-		User user = new User();
-		user = this.userService.fetchUser(phone);
-		phoneName = user.getName();
-		logger.info("phoneName : " +phoneName);
-		if (rsvp.equals("yes")) {
-		gcmService.broadcast("Just Meet", phoneName+ " is attending '" +planName+"'", plan.getMemberNames());
-		} else if (rsvp.equals("no") && plan.getMemberNames().size() == 1) {
-			logger.info("only one member in plan.. deleting...");
-			gcmService.broadcast("Just Meet", phoneName+ " is not attending '" +planName+"'" +"and the plan is deleted", plan.getMemberNames());
-		} else if (rsvp.equals("no")) {
-			gcmService.broadcast("Just Meet", phoneName+ " is not attending '" +planName+"'", plan.getMemberNames());
+		Plan plan = planService.fetchPlan(planIndex);
+		if(plan != null) {
+			String planName = plan.getTitle();
+			String phoneName = null;
+			User user = new User();
+			user = this.userService.fetchUser(phone);
+			phoneName = user.getName();
+			logger.info("phoneName : " +phoneName);
+			if (rsvp.equals("yes")) {
+			gcmService.broadcast("Just Meet", phoneName+ " is attending Plan: " +planName+",Rsvp,"+plan.getId(), plan.getMembersAttending());
+			} else if (rsvp.equals("no") && plan.getMembersAttending().size() == 1) {
+				logger.info("only one member in plan.. deleting...");
+				gcmService.broadcast("Just Meet", phoneName+ " is not attending Plan: " +planName+" and the plan has been deleted,DeletePlan,"+plan.getId(), plan.getMembersAttending());
+			} else if (rsvp.equals("no")) {
+				gcmService.broadcast("Just Meet", phoneName+ " is not attending Plan: " +planName+",Rsvp,"+plan.getId(), plan.getMembersAttending());
+			}
+			logger.info("Plan RSVP for  : "+ planName+"/"+phone);
+			return planService.rsvpPlan(phone, planIndex, rsvp);
 		}
-		logger.info("Plan RSVP for  : "+ planName+"/"+phone);
-		return planService.rsvpPlan(phone, planName, planIndex, groupIndex, rsvp);
+		return null;
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/deletePlan")
 	public @ResponseBody
-	Plan deletePlan(@RequestParam(value = "planName") String planName,
-			@RequestParam(value = "planName") String planIndex,
-			@RequestParam(value = "groupName") String groupName,
-			@RequestParam(value = "groupName") String groupIndex) {
-		Plan plan = planService.fetchPlan(planName, planIndex);
-		gcmService.broadcast("Just Meet", " Plan '"+planName+"' has been deleted from '"+groupName+"'", plan.getMembersInvited());
+	Plan deletePlan(@RequestParam(value = "id") String planIndex) {
+		Plan plan = planService.fetchPlan(planIndex);
+		String planName = plan.getTitle();
+		planService.deletePlan(planIndex);
 		logger.info("Plan deleted: "+planName);
-		return planService.deletePlan(planName, planIndex, groupName, groupIndex);
+		gcmService.broadcast("Just Meet", " Plan :"+planName+" has been deleted,DeletePlan,"+plan.getId(), plan.getMembersInvited());
+		return plan;
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchPlanHistory")
 	public @ResponseBody
 	PlanList fetchPlanHistory(
-			@RequestParam(value = "groupName") String groupName,
-			@RequestParam(value = "groupIndex") String groupIndex) {
-		return planService.fetchPlanHistory(groupName, groupIndex);
+			@RequestParam(value = "phone") String phone) {
+		return planService.fetchPlanHistory(phone);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchGroupPlanHistory")
+	public @ResponseBody
+	PlanList fetchGroupPlanHistory(
+			@RequestParam(value = "groupId") String groupId) {
+		return planService.fetchGroupPlanHistory(groupId);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/joinGroup")
@@ -233,33 +241,21 @@ public class JustMeetController {
 
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/setAdminDecisionForUser")
-	public @ResponseBody
-	Group setAdminDecisionForUser(
-			@RequestParam(value = "groupName") String groupName,
-			@RequestParam(value = "groupIndex") String groupIndex,
-			@RequestParam(value = "phone") String phone,
-			@RequestParam(value = "decision") String decision) {
-		
-		return groupService.setAdminDecision(groupName, groupIndex, phone, decision);
-	}
-
-	@RequestMapping(method = RequestMethod.GET, value = "/invite")
-	public @ResponseBody
-	Group invite(@RequestParam(value = "groupName") String groupName,
-			@RequestParam(value = "groupIndex") String groupIndex,
-			@RequestParam(value = "phone") String phone) {
-		return groupService.invite(groupName, groupIndex, phone);
-	}
-
 	@RequestMapping(method = RequestMethod.GET, value = "/leaveGroup")
 	public @ResponseBody
 	Group leaveGroup(@RequestParam(value = "phone") String phone,
-			@RequestParam(value = "groupName") String groupName,
 			@RequestParam(value = "groupIndex") String groupIndex) {
 		Group group = groupService.fetchGroup(groupIndex);
-		gcmService.broadcast("Just Meet", phone+" has left the group '"+groupName+"'", group.getMembers());
-		return groupService.leaveGroup(phone, groupName, groupIndex);
+		gcmService.broadcast("Just Meet", phone+" has left the group '"+group.getName()+"'", group.getMembers());
+		return groupService.leaveGroup(phone, groupIndex);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/deleteGroup")
+	public @ResponseBody
+	void deleteGroup(@RequestParam(value = "id") String groupIndex) {
+		Group group = groupService.fetchGroup(groupIndex);
+		gcmService.broadcast("Just Meet", " Group '"+group.getName()+"' has been deleted,DeleteGroup,"+group.getId(), group.getMembers());
+		groupService.deleteGroup(groupIndex);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/editPlan")
@@ -274,8 +270,8 @@ public class JustMeetController {
 			@RequestParam(value = "location") String planLocation,
 			@RequestParam(value = "groupName") String groupName,
 			@RequestParam(value = "groupIndex") String groupIndex) {
-		Plan plan = planService.fetchPlan(oldPlanName, planIndex);
-		gcmService.broadcast("Just Meet", "Plan "+oldPlanName+" has been edited to '"+newPlanName+"'", plan.getMemberNames());
+		Plan plan = planService.fetchPlan(planIndex);
+		gcmService.broadcast("Just Meet", "Plan: "+newPlanName+" has been edited.,EditPlan,"+plan.getId(), plan.getMembersAttending());
 		return planService.editPlan(newPlanName, oldPlanName, planIndex, planDate,
 				planTime, planLocation, groupName, groupIndex, endDate, endTime);
 	}
@@ -288,80 +284,101 @@ public class JustMeetController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/addExpense")
 	public @ResponseBody
-	void addExpense(@RequestParam(value = "phone") String phone,
-			@RequestParam(value = "planName") String planName,
+	Expense addExpense(@RequestParam(value = "phone") String phone,
 			@RequestParam(value = "planName") String planIndex,
-			@RequestParam(value = "groupName") String groupName,
-			@RequestParam(value = "groupIndex") String groupIndex,
 			@RequestParam(value = "title") String title,
 			@RequestParam(value = "value") String value) {
-		expenseService.add(phone, planName, planIndex, groupName, groupIndex, title, value);
-		Plan plan = planService.fetchPlan(planName, planIndex);
-		logger.info("member names : " + plan.getMemberNames());
+		
+		Plan plan = planService.fetchPlan(planIndex);
+		logger.info("member names : " + plan.getMembersAttending());
 		String phoneName = null;
 		User user = new User();
-		user = this.userService.fetchUser(phone);
+		user = userService.fetchUser(phone);
 		phoneName = user.getName();
-		gcmService.broadcast("Just Meet", phoneName+ " added a new expense of Rs."+value +" to plan - '" +planName+"' in '"+groupName+"'",plan.getMemberNames());
+		Expense expense =  expenseService.add(phone, planIndex, title, value);
+		gcmService.broadcast("Just Meet", phoneName+ " added a new expense of Rs."+value +" to plan - '" +plan.getTitle()+".,NewExpense,"+expense.getId()+","+plan.getId(), plan.getMembersAttending());
+		return expense;
+		
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/updateExpense")
 	public @ResponseBody
-	void updateExpense(@RequestParam(value = "phone") String phone,
-			@RequestParam(value = "planName") String planName,
+	Expense updateExpense(@RequestParam(value = "id") String id,
 			@RequestParam(value = "planIndex") String planIndex,
-			@RequestParam(value = "groupName") String groupName,
-			@RequestParam(value = "groupIndex") String groupIndex,
+			@RequestParam(value = "phone") String phone,
 			@RequestParam(value = "title") String title,
 			@RequestParam(value = "value") String value) {
 		String phoneName = null;
 		User user = new User();
 		user = this.userService.fetchUser(phone);
 		phoneName = user.getName();
-		Plan plan = planService.fetchPlan(planName, planIndex);
-		gcmService.broadcast("Just Meet", phoneName+ " updated expense of Rs."+value +" to plan - '" +planName+"' in '"+groupName+"'",plan.getMemberNames());
-		expenseService.update(phone, planName, planIndex, groupName, groupIndex, title, value);
+		Plan plan = planService.fetchPlan(planIndex);
+		gcmService.broadcast("Just Meet", phoneName+ " updated expense of Rs."+value +" to plan - '" +plan.getTitle()+".,UpdateExpense,"+id+","+plan.getId(),plan.getMembersAttending());
+		return expenseService.update(id, title, value);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/deleteExpense")
 	public @ResponseBody
 	void deleteExpense(@RequestParam(value = "phone") String phone,
-			@RequestParam(value = "planName") String planName,
 			@RequestParam(value = "planIndex") String planIndex,
-			@RequestParam(value = "groupName") String groupName,
-			@RequestParam(value = "title") String title) {
-		Plan plan = planService.fetchPlan(planName, planIndex);
-		expenseService.delete(phone, planName, groupName, title);
+			@RequestParam(value = "id") String id) {
+		Plan plan = planService.fetchPlan(planIndex);
+		expenseService.delete(id);
 		String phoneName = null;
 		User user = new User();
-		user = this.userService.fetchUser(phone);
+		user = userService.fetchUser(phone);
 		phoneName = user.getName();
-		gcmService.broadcast("Just Meet", phoneName+ " deleted an expense from plan - '" +planName+"' in '"+groupName+"'",plan.getMemberNames());
+		gcmService.broadcast("Just Meet", phoneName+ " deleted an expense from plan - '" +plan.getTitle()+".,DeleteExpense,"+id+","+plan.getId(),plan.getMembersAttending());
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchExpenses")
+	public @ResponseBody
+	ExpenseList fetchExpenses(@RequestParam(value = "phone") String phone,
+			@RequestParam(value = "planIndex") String planIndex) {
+		return expenseService.fetch(phone, planIndex);
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchExpense")
 	public @ResponseBody
-	ExpenseList fetchExpense(@RequestParam(value = "phone") String phone,
-			@RequestParam(value = "planName") String planName,
-			@RequestParam(value = "planIndex") String planIndex,
-			@RequestParam(value = "groupName") String groupName,
-			@RequestParam(value = "groupIndex") String groupIndex) {
-		return expenseService.fetch(phone, planName, planIndex, groupName, groupIndex);
+	Expense fetchExpense(@RequestParam(value = "expenseId") String id) {
+		return expenseService.fetchExpense(id);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/generateReport")
 	public @ResponseBody
-	ExpenseReport generateReport(
-			@RequestParam(value = "planName") String planName,
-			@RequestParam(value = "planIndex") String planIndex,
-			@RequestParam(value = "groupIndex") String groupIndex) {
-		return expenseService.generateReport(planName, planIndex, groupIndex);
+	ExpenseReport generateReport(@RequestParam(value = "planIndex") String planIndex) {
+		return expenseService.generateReport(planIndex);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchExistingUsers")
 	public @ResponseBody
 	UserList fetchExistingUsers(@RequestParam(value = "phoneList") String phoneList) {
 		return userService.fetchUserList(phoneList);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchInviteList")
+	public @ResponseBody
+	UserList fetchInviteList(@RequestParam(value = "groupId") String groupId,
+			@RequestParam(value = "phoneList") String phoneList) {
+		Group group = groupService.fetchGroup(groupId);
+		String[] phonesArray = StringUtils.commaDelimitedListToStringArray(phoneList);
+		if(phonesArray != null){
+			List<String> phones = Arrays.asList(phonesArray);
+			if(phones != null && !phones.isEmpty() && group != null){
+				List<String> members = group.getMembers();
+				if(members != null && !members.isEmpty()){
+					phones.removeAll(members);
+				}
+				return userService.fetchUserList(phoneList);
+			}
+		}		
+		return userService.fetchUserList(phoneList);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/fetchPlanUsers")
+	public @ResponseBody
+	UserList fetchPlanUsers(@RequestParam(value = "planId") String planId) {
+		return userService.fetchPlanUsers(planId);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchGroupUsers")
@@ -377,7 +394,7 @@ public class JustMeetController {
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchExistingGroups")
 	public @ResponseBody
 	GroupList fetchExistingGroups(@RequestParam(value = "phone") String phone) {
-		
+		logger.info("Fetching Groups: " +phone);
 		return groupService.fetchGroupList(phone);
 	}
 	
@@ -404,7 +421,6 @@ public class JustMeetController {
 			groups = Arrays.asList(groupList.split(","));
 		}
 		
-		
 		List<String> gcmList = new ArrayList<String>();
 		gcmList.add(phone);
 		if(phones != null && !phones.isEmpty()) {
@@ -414,7 +430,7 @@ public class JustMeetController {
 		
 		Plan plan = planService.newPlan(planName, phone, planDate, planTime,
 				planLocation, phones, groups, creator, endDate, endTime);
-		if(plan != null && plan.getName().equals(planName)){
+		if(plan != null && plan.getTitle().equals(planName)){
 			if(groups != null && !groups.isEmpty()){
 				for(String groupName: groups){
 					Group group = this.groupService.searchGroup(groupName.replace("%20", " "));
@@ -425,7 +441,7 @@ public class JustMeetController {
 				}
 			}
 			
-			this.gcmService.broadcast("Just Meet", "A new plan has been added '"+ planName+"'", gcmList);
+			this.gcmService.broadcast("Just Meet", "A new plan: "+planName+" has been created.,NewPlan,"+plan.getId(), gcmList);
 			logger.info("Plan created : "+ planName);
 			return plan;
 		}

@@ -13,18 +13,16 @@ public class Plan {
 
 	@XmlElement(name = "id")
 	private int id;
-	@XmlElement(name = "name")
-	private String name;
-	@XmlElement(name = "groupName")
-	private String groupName;
+	@XmlElement(name = "title")
+	private String title;
 	@XmlElement(name = "startTime")
 	private String startTime;
 	@XmlElement(name = "endTime")
 	private String endTime;
 	@XmlElement(name = "location")
 	private String location;
-	@XmlElement(name = "memberNames")
-	private List<String> memberNames;
+	@XmlElement(name = "membersAttending")
+	private List<String> membersAttending;
 	@XmlElement(name = "membersInvited")
 	private List<String> membersInvited;
 	@XmlElement(name = "groupsInvited")
@@ -43,20 +41,12 @@ public class Plan {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getTitle() {
+		return title;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getGroupName() {
-		return groupName;
-	}
-
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public String getStartTime() {
@@ -83,12 +73,12 @@ public class Plan {
 		this.location = location;
 	}
 
-	public List<String> getMemberNames() {
-		return memberNames;
+	public List<String> getMembersAttending() {
+		return membersAttending;
 	}
 
-	public void setMemberNames(List<String> memberNames) {
-		this.memberNames = memberNames;
+	public void setMembersAttending(List<String> membersAttending) {
+		this.membersAttending = membersAttending;
 	}
 
 	public String getCreator() {
