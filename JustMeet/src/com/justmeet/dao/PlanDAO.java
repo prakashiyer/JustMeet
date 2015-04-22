@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -81,30 +82,37 @@ public class PlanDAO {
 								plan.setLocation(rs.getString(4));
 								
 								String[] membersArray = StringUtils.commaDelimitedListToStringArray(rs.getString(5));
+								List<String> membersAttending = new ArrayList<String>();
 								if(membersArray != null){
-									List<String> membersAttending = Arrays.asList(membersArray);
-									if(membersAttending != null && !membersAttending.isEmpty()){
-										plan.setMembersAttending(membersAttending);
-									}
+									List<String> membersAttendingDb = Arrays.asList(membersArray);
+									if(membersAttendingDb != null && !membersAttendingDb.isEmpty()){
+										membersAttending.addAll(membersAttendingDb);
+									} 
 								}
+								plan.setMembersAttending(membersAttending);
 								plan.setCreator(rs.getString(6));
 								plan.setEndTime(rs.getString(7));
 								
 								String[] groupsArray = StringUtils.commaDelimitedListToStringArray(rs.getString(8));
+								List<String> groupsInvited = new ArrayList<String>();
 								if(groupsArray != null){
-									List<String> groupsInvited = Arrays.asList(groupsArray);
-									if(groupsInvited != null && !groupsInvited.isEmpty()){
-										plan.setGroupsInvited(groupsInvited);
-									}
-								}
+									List<String> groupsInvitedDb = Arrays.asList(groupsArray);
+									if(groupsInvitedDb != null && !groupsInvitedDb.isEmpty()){
+										groupsInvited.addAll(groupsInvitedDb);
+									} 
+								} 
+								plan.setGroupsInvited(groupsInvited);
 								
 								String[] membersIvitedArray = StringUtils.commaDelimitedListToStringArray(rs.getString(9));
+								List<String> membersInvited = new ArrayList<String>();
 								if(membersIvitedArray != null){
-									List<String> membersInvited = Arrays.asList(membersIvitedArray);
-									if(membersInvited != null && !membersInvited.isEmpty()){
+									List<String> membersInvitedDb = Arrays.asList(membersIvitedArray);
+									if(membersInvitedDb != null && !membersInvitedDb.isEmpty()){
+										membersInvited.addAll(membersInvitedDb);
 										plan.setMembersInvited(membersInvited);
-									}
+									} 
 								}
+								plan.setMembersInvited(membersInvited);	
 								return plan;
 							}
 							return null;
@@ -164,30 +172,37 @@ public class PlanDAO {
 								plan.setLocation(rs.getString(4));
 								
 								String[] membersArray = StringUtils.commaDelimitedListToStringArray(rs.getString(5));
+								List<String> membersAttending = new ArrayList<String>();
 								if(membersArray != null){
-									List<String> membersAttending = Arrays.asList(membersArray);
-									if(membersAttending != null && !membersAttending.isEmpty()){
-										plan.setMembersAttending(membersAttending);
-									}
+									List<String> membersAttendingDb = Arrays.asList(membersArray);
+									if(membersAttendingDb != null && !membersAttendingDb.isEmpty()){
+										membersAttending.addAll(membersAttendingDb);
+									} 
 								}
+								plan.setMembersAttending(membersAttending);
 								plan.setCreator(rs.getString(6));
 								plan.setEndTime(rs.getString(7));
 								
 								String[] groupsArray = StringUtils.commaDelimitedListToStringArray(rs.getString(8));
+								List<String> groupsInvited = new ArrayList<String>();
 								if(groupsArray != null){
-									List<String> groupsInvited = Arrays.asList(groupsArray);
-									if(groupsInvited != null && !groupsInvited.isEmpty()){
-										plan.setGroupsInvited(groupsInvited);
-									}
-								}
+									List<String> groupsInvitedDb = Arrays.asList(groupsArray);
+									if(groupsInvitedDb != null && !groupsInvitedDb.isEmpty()){
+										groupsInvited.addAll(groupsInvitedDb);
+									} 
+								} 
+								plan.setGroupsInvited(groupsInvited);
 								
 								String[] membersIvitedArray = StringUtils.commaDelimitedListToStringArray(rs.getString(9));
+								List<String> membersInvited = new ArrayList<String>();
 								if(membersIvitedArray != null){
-									List<String> membersInvited = Arrays.asList(membersIvitedArray);
-									if(membersInvited != null && !membersInvited.isEmpty()){
+									List<String> membersInvitedDb = Arrays.asList(membersIvitedArray);
+									if(membersInvitedDb != null && !membersInvitedDb.isEmpty()){
+										membersInvited.addAll(membersInvitedDb);
 										plan.setMembersInvited(membersInvited);
-									}
+									} 
 								}
+								plan.setMembersInvited(membersInvited);
 								return plan;
 							}
 							return null;
@@ -238,30 +253,37 @@ public class PlanDAO {
 								plan.setLocation(rs.getString(4));
 								
 								String[] membersArray = StringUtils.commaDelimitedListToStringArray(rs.getString(5));
+								List<String> membersAttending = new ArrayList<String>();
 								if(membersArray != null){
-									List<String> membersAttending = Arrays.asList(membersArray);
-									if(membersAttending != null && !membersAttending.isEmpty()){
-										plan.setMembersAttending(membersAttending);
-									}
+									List<String> membersAttendingDb = Arrays.asList(membersArray);
+									if(membersAttendingDb != null && !membersAttendingDb.isEmpty()){
+										membersAttending.addAll(membersAttendingDb);
+									} 
 								}
+								plan.setMembersAttending(membersAttending);
 								plan.setCreator(rs.getString(6));
 								plan.setEndTime(rs.getString(7));
 								
 								String[] groupsArray = StringUtils.commaDelimitedListToStringArray(rs.getString(8));
+								List<String> groupsInvited = new ArrayList<String>();
 								if(groupsArray != null){
-									List<String> groupsInvited = Arrays.asList(groupsArray);
-									if(groupsInvited != null && !groupsInvited.isEmpty()){
-										plan.setGroupsInvited(groupsInvited);
-									}
-								}
+									List<String> groupsInvitedDb = Arrays.asList(groupsArray);
+									if(groupsInvitedDb != null && !groupsInvitedDb.isEmpty()){
+										groupsInvited.addAll(groupsInvitedDb);
+									} 
+								} 
+								plan.setGroupsInvited(groupsInvited);
 								
 								String[] membersIvitedArray = StringUtils.commaDelimitedListToStringArray(rs.getString(9));
+								List<String> membersInvited = new ArrayList<String>();
 								if(membersIvitedArray != null){
-									List<String> membersInvited = Arrays.asList(membersIvitedArray);
-									if(membersInvited != null && !membersInvited.isEmpty()){
+									List<String> membersInvitedDb = Arrays.asList(membersIvitedArray);
+									if(membersInvitedDb != null && !membersInvitedDb.isEmpty()){
+										membersInvited.addAll(membersInvitedDb);
 										plan.setMembersInvited(membersInvited);
-									}
+									} 
 								}
+								plan.setMembersInvited(membersInvited);
 								return plan;
 							}
 							return null;
@@ -373,30 +395,37 @@ public class PlanDAO {
 								plan.setLocation(rs.getString(4));
 								
 								String[] membersArray = StringUtils.commaDelimitedListToStringArray(rs.getString(5));
+								List<String> membersAttending = new ArrayList<String>();
 								if(membersArray != null){
-									List<String> membersAttending = Arrays.asList(membersArray);
-									if(membersAttending != null && !membersAttending.isEmpty()){
-										plan.setMembersAttending(membersAttending);
-									}
+									List<String> membersAttendingDb = Arrays.asList(membersArray);
+									if(membersAttendingDb != null && !membersAttendingDb.isEmpty()){
+										membersAttending.addAll(membersAttendingDb);
+									} 
 								}
+								plan.setMembersAttending(membersAttending);
 								plan.setCreator(rs.getString(6));
 								plan.setEndTime(rs.getString(7));
 								
 								String[] groupsArray = StringUtils.commaDelimitedListToStringArray(rs.getString(8));
+								List<String> groupsInvited = new ArrayList<String>();
 								if(groupsArray != null){
-									List<String> groupsInvited = Arrays.asList(groupsArray);
-									if(groupsInvited != null && !groupsInvited.isEmpty()){
-										plan.setGroupsInvited(groupsInvited);
-									}
-								}
+									List<String> groupsInvitedDb = Arrays.asList(groupsArray);
+									if(groupsInvitedDb != null && !groupsInvitedDb.isEmpty()){
+										groupsInvited.addAll(groupsInvitedDb);
+									} 
+								} 
+								plan.setGroupsInvited(groupsInvited);
 								
 								String[] membersIvitedArray = StringUtils.commaDelimitedListToStringArray(rs.getString(9));
+								List<String> membersInvited = new ArrayList<String>();
 								if(membersIvitedArray != null){
-									List<String> membersInvited = Arrays.asList(membersIvitedArray);
-									if(membersInvited != null && !membersInvited.isEmpty()){
+									List<String> membersInvitedDb = Arrays.asList(membersIvitedArray);
+									if(membersInvitedDb != null && !membersInvitedDb.isEmpty()){
+										membersInvited.addAll(membersInvitedDb);
 										plan.setMembersInvited(membersInvited);
-									}
+									} 
 								}
+								plan.setMembersInvited(membersInvited);
 								return plan;
 							}
 							return null;
@@ -532,43 +561,38 @@ public class PlanDAO {
 								plan.setStartTime(rs.getTimestamp(3).toString());
 								plan.setLocation(rs.getString(4));
 
-								String[] membersArray = StringUtils
-										.commaDelimitedListToStringArray(rs
-												.getString(5));
-								if (membersArray != null) {
-									List<String> membersAttending = Arrays
-											.asList(membersArray);
-									if (membersAttending != null
-											&& !membersAttending.isEmpty()) {
-										plan.setMembersAttending(membersAttending);
-									}
+								String[] membersArray = StringUtils.commaDelimitedListToStringArray(rs.getString(5));
+								List<String> membersAttending = new ArrayList<String>();
+								if(membersArray != null){
+									List<String> membersAttendingDb = Arrays.asList(membersArray);
+									if(membersAttendingDb != null && !membersAttendingDb.isEmpty()){
+										membersAttending.addAll(membersAttendingDb);
+									} 
 								}
+								plan.setMembersAttending(membersAttending);
 								plan.setCreator(rs.getString(6));
 								plan.setEndTime(rs.getString(7));
-
-								String[] groupsArray = StringUtils
-										.commaDelimitedListToStringArray(rs
-												.getString(8));
-								if (groupsArray != null) {
-									List<String> groupsInvited = Arrays
-											.asList(groupsArray);
-									if (groupsInvited != null
-											&& !groupsInvited.isEmpty()) {
-										plan.setGroupsInvited(groupsInvited);
-									}
-								}
-
-								String[] membersIvitedArray = StringUtils
-										.commaDelimitedListToStringArray(rs
-												.getString(9));
-								if (membersIvitedArray != null) {
-									List<String> membersInvited = Arrays
-											.asList(membersIvitedArray);
-									if (membersInvited != null
-											&& !membersInvited.isEmpty()) {
+								
+								String[] groupsArray = StringUtils.commaDelimitedListToStringArray(rs.getString(8));
+								List<String> groupsInvited = new ArrayList<String>();
+								if(groupsArray != null){
+									List<String> groupsInvitedDb = Arrays.asList(groupsArray);
+									if(groupsInvitedDb != null && !groupsInvitedDb.isEmpty()){
+										groupsInvited.addAll(groupsInvitedDb);
+									} 
+								} 
+								plan.setGroupsInvited(groupsInvited);
+								
+								String[] membersIvitedArray = StringUtils.commaDelimitedListToStringArray(rs.getString(9));
+								List<String> membersInvited = new ArrayList<String>();
+								if(membersIvitedArray != null){
+									List<String> membersInvitedDb = Arrays.asList(membersIvitedArray);
+									if(membersInvitedDb != null && !membersInvitedDb.isEmpty()){
+										membersInvited.addAll(membersInvitedDb);
 										plan.setMembersInvited(membersInvited);
-									}
+									} 
 								}
+								plan.setMembersInvited(membersInvited);
 								return plan;
 							}
 							return null;

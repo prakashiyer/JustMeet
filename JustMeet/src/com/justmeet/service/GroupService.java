@@ -46,28 +46,32 @@ public class GroupService {
 		// Add group
 		log.warn("Inputs: " + groupName + "/" + phone);
 		int groupIndex = groupDao.addGroup(groupName, membersList, phone);
-
+		log.info("Members List: "+membersList);
 		if (groupIndex > 0) {
+			log.info("Group Index"+String.valueOf(groupIndex));
 			// Add group Image
 			groupDao.addGroupImage(String.valueOf(groupIndex), inputStream);
-			// Fetch current groups
-			User user = userDao.fetchUser(phone);
-			if (user != null) {
-				List<String> groupIds = user.getGroupIds();
-				// Add the new group to user table\
-				groupIds.add(String.valueOf(groupIndex));
-
-				boolean updatedSuccess = userDao.updateUserWithGroup(phone,
-						 groupIds);
-				if (updatedSuccess) {
-					Group responseGroup = groupDao.fetchGroup(String.valueOf(groupIndex));
-					if (responseGroup != null) {
-						// Return group info
-						return responseGroup;
+			String[] membersArray = StringUtils.commaDelimitedListToStringArray(membersList);
+			if(membersArray != null && membersArray.length > 0){
+				for(String member: membersArray){
+					log.info("Member to update"+member);
+					User user = userDao.fetchUser(member);
+					if (user != null) {
+						List<String> groupIds = user.getGroupIds();
+						groupIds.add(String.valueOf(groupIndex));
+						userDao.updateUserWithGroup(member, groupIds);
 					}
-
 				}
+				
 			}
+			
+			Group responseGroup = groupDao.fetchGroup(String.valueOf(groupIndex));
+			if (responseGroup != null) {
+				// Return group info
+				return responseGroup;
+			}
+			// Fetch current groups
+			
 		}
 
 		return new Group();

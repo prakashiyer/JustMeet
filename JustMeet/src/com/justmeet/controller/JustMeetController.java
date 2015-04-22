@@ -74,7 +74,7 @@ public class JustMeetController {
 		return userService.fetchUser(phone);
 	}
 
-	@RequestMapping(method = RequestMethod.POST, value = "/addGroup", headers = "Accept=*/*", produces = MediaType.IMAGE_JPEG_VALUE)
+	@RequestMapping(method = RequestMethod.POST, value = "/addGroup")
 	public @ResponseBody
 	Group addGroup(@RequestParam(value = "name") String groupName,
 			@RequestParam(value = "phone") String phone,
@@ -383,8 +383,7 @@ public class JustMeetController {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/fetchGroupUsers")
 	public @ResponseBody
-	UserList fetchGroupUsers(@RequestParam(value = "groupName") String groupName,
-			@RequestParam(value = "groupIndex") String groupIndex) {
+	UserList fetchGroupUsers(@RequestParam(value = "groupIndex") String groupIndex) {
 		Group group = groupService.fetchGroup(groupIndex);
 		List<String> memberList = group.getMembers();
 		String phoneList = StringUtils.collectionToCommaDelimitedString(memberList);

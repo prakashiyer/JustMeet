@@ -5,7 +5,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -75,12 +77,14 @@ public class GroupDAO {
 								group.setId(rs.getInt(1));
 								group.setName(rs.getString(2));
 								String[] membersArray = StringUtils.commaDelimitedListToStringArray(rs.getString(3));
+								List<String> members = new ArrayList<String>();
 								if(membersArray != null){
-									List<String> members = Arrays.asList(membersArray);
-									if(members != null && !members.isEmpty()){
-										group.setMembers(members);
-									}
+									List<String> membersDb = Arrays.asList(membersArray);
+									if(membersDb != null && !membersDb.isEmpty()){
+										members.addAll(membersDb);
+									} 
 								}
+								group.setMembers(members);
 								group.setImage(rs.getBytes(4));
 								group.setAdmin(rs.getString(5));
 								return group;
@@ -137,12 +141,14 @@ public class GroupDAO {
 								group.setId(rs.getInt(1));
 								group.setName(rs.getString(2));
 								String[] membersArray = StringUtils.commaDelimitedListToStringArray(rs.getString(3));
+								List<String> members = new ArrayList<String>();
 								if(membersArray != null){
-									List<String> members = Arrays.asList(membersArray);
-									if(members != null && !members.isEmpty()){
-										group.setMembers(members);
-									}
+									List<String> membersDb = Arrays.asList(membersArray);
+									if(membersDb != null && !membersDb.isEmpty()){
+										members.addAll(membersDb);
+									} 
 								}
+								group.setMembers(members);
 								group.setImage(rs.getBytes(4));
 								group.setAdmin(rs.getString(5));
 								return group;
@@ -225,7 +231,11 @@ public class GroupDAO {
 									List<String> members = Arrays.asList(membersArray);
 									if(members != null && !members.isEmpty()){
 										group.setMembers(members);
+									} else {
+										group.setMembers(Collections.<String>emptyList());
 									}
+								} else {
+									group.setMembers(Collections.<String>emptyList());
 								}
 								group.setImage(rs.getBytes(4));
 								group.setAdmin(rs.getString(5));

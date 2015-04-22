@@ -3,6 +3,7 @@ package com.justmeet.dao;
 import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -49,13 +50,18 @@ public class UserDAO {
 								user.setName(rs.getString(2));
 								user.setPhone(rs.getString(3));
 								user.setImage(rs.getBytes(4));
+								log.info("Group Ids: " + rs.getString(5));
 								String[] groupIdsArray = StringUtils.commaDelimitedListToStringArray(rs.getString(5));
+								List<String> groupIds = new ArrayList<String>();
 								if(groupIdsArray != null){
-									List<String> groupIds = Arrays.asList(groupIdsArray);
-									if(groupIds != null && !groupIds.isEmpty()){
-										user.setGroupIds(groupIds);
+									List<String> groupIdsDb = Arrays.asList(groupIdsArray);
+									if(groupIdsDb != null && !groupIdsDb.isEmpty()){
+										groupIds.addAll(groupIdsDb);
+										log.info("Group Ids Size: " + groupIds.size());
 									}
-								}
+								} 
+								user.setGroupIds(groupIds);
+								
 								return user;
 							}
 							return null;
@@ -71,6 +77,7 @@ public class UserDAO {
 	public boolean updateUserWithGroup(String phone, List<String> groupIds) {
 		String updateQuery = "UPDATE theiyers_whatsThePlan.user_informatiion SET groups_ids=? WHERE phone=?";
 		String groupIdString = StringUtils.collectionToCommaDelimitedString(groupIds);
+		log.info("Group Ids to update"+groupIdString);
 		try {
 			jdbcTemplate.update(updateQuery, groupIdString, phone);
 			return true;
@@ -212,12 +219,14 @@ public class UserDAO {
 								user.setPhone(rs.getString(3));
 								user.setImage(rs.getBytes(4));
 								String[] groupIdsArray = StringUtils.commaDelimitedListToStringArray(rs.getString(5));
+								List<String> groupIds = new ArrayList<String>();
 								if(groupIdsArray != null){
-									List<String> groupIds = Arrays.asList(groupIdsArray);
-									if(groupIds != null && !groupIds.isEmpty()){
-										user.setGroupIds(groupIds);
+									List<String> groupIdsDb = Arrays.asList(groupIdsArray);
+									if(groupIdsDb != null && !groupIdsDb.isEmpty()){
+										groupIds.addAll(groupIdsDb);
 									}
-								}
+								} 
+								user.setGroupIds(groupIds);
 								return user;
 							}
 							return null;
