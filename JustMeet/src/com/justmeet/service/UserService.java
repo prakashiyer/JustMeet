@@ -74,8 +74,12 @@ public class UserService {
 	
 	public User editUser(String phone, MultipartFile file, String name) {
 		try {
-			InputStream inputStream = file.getInputStream();
-			boolean success = userDao.editUser(phone, inputStream, name);
+			InputStream inputStream = null;
+			if(file != null){
+				inputStream = file.getInputStream();
+				userDao.editUserImage(phone, inputStream);
+			}
+			boolean success = userDao.editUserName(phone, name);
 			if (success) {
 				return userDao.fetchUser(phone);
 			}

@@ -103,10 +103,10 @@ public class PlanDAO {
 								} 
 								plan.setGroupsInvited(groupsInvited);
 								
-								String[] membersIvitedArray = StringUtils.commaDelimitedListToStringArray(rs.getString(9));
+								String[] membersInvitedArray = StringUtils.commaDelimitedListToStringArray(rs.getString(9));
 								List<String> membersInvited = new ArrayList<String>();
-								if(membersIvitedArray != null){
-									List<String> membersInvitedDb = Arrays.asList(membersIvitedArray);
+								if(membersInvitedArray != null && membersInvitedArray.length > 0){
+									List<String> membersInvitedDb = Arrays.asList(membersInvitedArray);
 									if(membersInvitedDb != null && !membersInvitedDb.isEmpty()){
 										membersInvited.addAll(membersInvitedDb);
 										plan.setMembersInvited(membersInvited);

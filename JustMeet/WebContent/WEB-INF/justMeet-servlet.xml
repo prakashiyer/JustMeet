@@ -59,10 +59,13 @@
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
 		<property name="url" value="jdbc:mysql://localhost:3306/theiyers_whatsThePlan" />
+		<!-- IGNORE -->
 		<!-- <property name="username" value="theiyers_admin" />
 		<property name="password" value="PraxIyer05" /> -->
-		<!-- <property name="username" value="root" />
-		<property name="password" value="password" /> -->
+		<!-- USE THIS FOR LOCAL -->
+		<!--  <property name="username" value="root" />
+		<property name="password" value="password" />-->
+		<!-- USE THIS FOR EC2 -->
 		<property name="username" value="root" />
 		<property name="password" value="PraxIyer" />
 	</bean>

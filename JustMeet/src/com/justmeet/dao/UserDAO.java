@@ -99,11 +99,24 @@ public class UserDAO {
 		}
 	}
 	
-	public boolean editUser(String phone, InputStream inputStream, String name) {
-		log.info("Edit User in DAO");
-		String updateQuery = "UPDATE theiyers_whatsThePlan.user_informatiion SET image=?, name=? WHERE phone=?";
+	public boolean editUserName(String phone, String name) {
+		log.info("Edit User Name in DAO");
+		String updateQuery = "UPDATE theiyers_whatsThePlan.user_informatiion SET name=? WHERE phone=?";
 		try {
-			jdbcTemplate.update(updateQuery, inputStream, name, phone);
+			jdbcTemplate.update(updateQuery, name, phone);
+			log.info("User Image uploaded in DAO: " +phone);
+			return true;
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+			return false;
+		}
+	}
+	
+	public boolean editUserImage(String phone, InputStream inputStream) {
+		log.info("Edit User Image in DAO");
+		String updateQuery = "UPDATE theiyers_whatsThePlan.user_informatiion SET image=? WHERE phone=?";
+		try {
+			jdbcTemplate.update(updateQuery, inputStream, phone);
 			log.info("User Image uploaded in DAO: " +phone);
 			return true;
 		} catch (Exception e) {
